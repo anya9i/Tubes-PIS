@@ -4,135 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
 
 class ProductController extends Controller
 {
-    // READ - Tampilkan semua produk
+    // Daftar Stok
     public function index()
     {
-        $produks = Produk::paginate(5);
-
-        // API
-        if (request()->is('api/*')) {
-            return response()->json($produks);
-        }
-
-        // Web
-        return view('produk.index', compact('produks'));
+        $produk = Produk::all();
+        return view('stok.index', compact('produk'));
     }
 
-    // CREATE - Tampilkan form tambah produk
-    public function create()
+    // Tampilkan form perbarui stok umum
+    public function perbaruiForm()
     {
-        return view('produk.create');
+        $produks = Produk::all();
+        return view('stok.edit', compact('produks'));
     }
 
-    // CREATE - Simpan produk baru
-    public function store(Request $request)
+    // Simpan update stok
+    public function perbaruiUpdate(Request $request)
     {
         $request->validate([
-            'nama_produk' => 'required|string|max:150',
-            'sku'         => 'required|string|max:50|unique:produk,sku',
-            'harga'       => 'required|numeric|min:0',
-            'stok'        => 'required|integer|min:0',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'deskripsi'   => 'nullable|string',
+            'produk_id' => 'required|exists:produk,id',
+            'jumlah_stok' => 'required|integer|min:0',
         ]);
 
-        $data = $request->all();
+        $produk = Produk::findOrFail($request->produk_id);
+        $produk->stok = $request->jumlah_stok;
+        $produk->save();
 
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('produk', 'public');
-        }
-
-        $produk = Produk::create($data);
-
-        // API
-        if (request()->is('api/*')) {
-            return response()->json([
-                'message' => 'Produk berhasil ditambahkan',
-                'data' => $produk
-            ]);
-        }
-
-        // Web
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil ditambahkan!');
-    }
-
-    // UPDATE - Tampilkan form edit
-    public function edit($id)
-    {
-        $produk = Produk::findOrFail($id);
-        return view('produk.edit', compact('produk'));
-    }
-
-    // UPDATE - Simpan perubahan
-    public function update(Request $request, $id)
-    {
-        $produk = Produk::findOrFail($id);
-
-        $request->validate([
-            'nama_produk' => 'required|string|max:150',
-            'sku'         => 'required|string|max:50|unique:produk,sku,' . $id,
-            'harga'       => 'required|numeric|min:0',
-            'stok'        => 'required|integer|min:0',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'deskripsi'   => 'nullable|string',
-        ]);
-
-        $data = $request->all();
-
-        if ($request->hasFile('foto')) {
-            if ($produk->foto) {
-                Storage::disk('public')->delete($produk->foto);
-            }
-            $data['foto'] = $request->file('foto')->store('produk', 'public');
-        }
-
-        $produk->update($data);
-
-        // API
-        if (request()->is('api/*')) {
-            return response()->json([
-                'message' => 'Produk berhasil diupdate',
-                'data' => $produk
-            ]);
-        }
-
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil diupdate!');
-    }
-
-    // DELETE - Hapus produk
-    public function destroy($id)
-    {
-        $produk = Produk::findOrFail($id);
-
-        if ($produk->foto) {
-            Storage::disk('public')->delete($produk->foto);
-        }
-
-        $produk->delete();
-
-        // API
-        if (request()->is('api/*')) {
-            return response()->json([
-                'message' => 'Produk berhasil dihapus'
-            ]);
-        }
-
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus!');
-    }
-
-    // PUBLIC API
-    public function externalApi()
-    {
-        $response = Http::get('https://jsonplaceholder.typicode.com/posts');
-
-        return response()->json([
-            'message' => 'Data dari Public API',
-            'data' => $response->json()
-        ]);
+        return redirect()->route('stok.index')->with('success', 'Stok berhasil diperbarui!');
     }
 }

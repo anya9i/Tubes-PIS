@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Produk extends Model
+
+
+class Stok extends Model
 {
-    protected $table = 'produk';
-    
-    protected $fillable = [
-    'nama_produk',
-    'sku',
-    'harga',
-    'stok',
-    'foto',
-    'deskripsi'
-];
+    use HasFactory;
+
+    // Jika nama tabelmu di database bukan 'stoks', tentukan di sini
+    protected $table = 'stok'; 
+
+    // Masukkan kolom apa saja yang boleh diisi
+    protected $fillable = ['nama_produk', 'jumlah', 'harga'];
 }
+

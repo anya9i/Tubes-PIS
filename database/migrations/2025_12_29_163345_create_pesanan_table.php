@@ -11,26 +11,35 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // GANTI MULAI DARI SINI
         Schema::create('pesanan', function (Blueprint $table) {
             $table->id();
         
-            $table->foreignId('id_reseller')
-                  ->constrained('reseller')
+            // Menghubungkan pesanan ke tabel users (untuk role Reseller/Customer)
+            $table->foreignId('user_id')
+                  ->constrained('users') 
                   ->cascadeOnDelete();
         
-            $table->date('tanggal_pesan');
+            $table->date('tanggal_pesan')->useCurrent();
             $table->integer('total_produk');
-            $table->decimal('total_harga', 15, 2);
+            $table->decimal('total_harga', 15, 2)->default(0);
         
             $table->text('alamat_pengiriman')->nullable();
             $table->string('no_telepon_pengiriman', 20)->nullable();
         
-            $table->enum('status', ['Diterima','Diproses','Dikirim','Selesai'])
-                  ->default('Diterima');
+            // Status yang kaku sesuai UI Figma
+            $table->enum('status', ['Dikemas', 'Dikirim', 'Diterima'])
+                  ->default('Dikemas');
+
+            // Kolom tambahan untuk integrasi Midtrans nanti
+            $table->string('payment_url')->nullable(); 
+            $table->enum('payment_status', ['MENUNGGU', 'BERHASIL', 'GAGAL'])
+                  ->default('MENUNGGU');
         
             $table->text('keterangan')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps(); 
         });        
+        // SAMPAI DI SINI
     }
 
     /**
