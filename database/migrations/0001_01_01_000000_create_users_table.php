@@ -10,18 +10,25 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('username', 50)->unique();
-            $table->string('password');
-            $table->string('nama_lengkap', 150)->nullable();
-            $table->string('email', 100)->nullable();
-            $table->enum('role', ['owner','admin'])->default('admin');
-            $table->string('foto_profil', 255)->nullable();
-            $table->timestamp('created_at')->useCurrent();
-        });        
-    }
+{
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();
+        $table->string('username')->unique();
+        $table->string('password');
+        $table->string('nama_lengkap');
+        $table->string('email')->unique();
+        $table->enum('role', ['admin', 'super admin', 'reseller'])->default('reseller');
+        $table->string('status')->default('aktif');
+
+        // TAMBAHKAN KOLOM INI DI SINI:
+        $table->string('jenis_toko')->nullable(); 
+        $table->string('wilayah')->nullable();
+        $table->text('alamat')->nullable();
+        $table->string('no_telepon')->nullable();
+
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.
@@ -30,4 +37,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('users');
     }
+
+    
 };

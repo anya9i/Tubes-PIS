@@ -12,9 +12,10 @@
             @csrf
 
             {{-- NAMA --}}
+            {{-- Ubah di file create.blade.php --}}
             <div class="form-group full">
                 <label>Nama Reseller</label>
-                <input type="text" name="nama_reseller" placeholder="Isi Nama Lengkap">
+                <input type="text" name="nama_lengkap" placeholder="Isi Nama Lengkap" required>
             </div>
 
             {{-- GRID 2 KOLOM --}}
@@ -61,8 +62,17 @@
                 <a href="/reseller" class="btn-cancel">Batal</a>
                 <button type="submit" class="btn-submit">Submit</button>
             </div>
-
         </form>
     </div>
 </div>
+
+@foreach($reseller as $item)
+<tr>
+    <td>{{ $item->nama_lengkap }}</td> 
+    <td>{{ $item->jenis_toko }}</td>
+    <td>{{ $item->wilayah }}</td>
+    <td>{{ $item->no_telepon }}</td>
+    <td>{{ $item->status }}</td>
+</tr>
+@endforeach
 @endsection

@@ -2,68 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reseller;
 use Illuminate\Http\Request;
+use App\Models\User; // Mengambil dari tabel users sesuai analisis Maria
 
 class ResellerController extends Controller
 {
+    // Menampilkan halaman utama dengan pagination (10 data per halaman)
     public function index()
     {
-        $resellers = \App\Models\Reseller::orderByRaw("
-                CASE 
-                    WHEN status = 'Aktif' THEN 1
-                    ELSE 2
-                END
-            ")
-            ->orderBy('nama_reseller', 'asc')
-            ->get();
-
+        // Mengambil users yang rolenya reseller, agen, atau outlet
+        $resellers = User::whereIn('role', ['reseller', 'agen', 'outlet'])->paginate(10);
         return view('reseller.index', compact('resellers'));
     }
 
-    public function create()
-    {
-        return view('reseller.create');
-    }
-
+    // Menyimpan reseller baru
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_reseller' => 'required',
-            'jenis_toko' => 'required',
-            'wilayah' => 'required',
-            'alamat' => 'required',
-            'no_telepon' => 'required|numeric'
-        ]);
-
-        Reseller::create([
-            'nama_reseller' => $request->nama_reseller,
-            'jenis_toko' => $request->jenis_toko,
+        User::create([
+            'nama_lengkap' => $request->nama_lengkap,
+            'role' => $request->role,
             'wilayah' => $request->wilayah,
             'alamat' => $request->alamat,
             'no_telepon' => $request->no_telepon,
-            'status' => 'Aktif'
+            'status' => 'Aktif', // Default awal aktif
+            'password' => bcrypt('12345678') // Default password akun baru
         ]);
 
-        return redirect('/reseller')->with('success', 'Reseller berhasil ditambahkan');
+        return redirect()->back()->with('success', 'Reseller baru berhasil ditambahkan!');
     }
 
-    public function toggleStatus($id)
+    // Mengubah status via dropdown tabel
+    public function updateStatus(Request $request, $id)
     {
-        $reseller = Reseller::findOrFail($id);
-        $reseller->status = $reseller->status === 'Aktif'
-            ? 'Tidak Aktif'
-            : 'Aktif';
-        $reseller->save();
-        return redirect()->back();
+        $reseller = User::findOrFail($id);
+        $reseller->update(['status' => $request->status]);
+
+        return redirect()->back()->with('success', 'Status akun berhasil diperbarui!');
     }
 
-        public function destroy($id)
+    // Menghapus massal data yang dicentang
+    public function destroyMassal(Request $request)
     {
-        $reseller = Reseller::findOrFail($id);
-        $reseller->delete();
-        return redirect()
-            ->route('reseller.index')
-            ->with('success', 'Reseller berhasil dihapus');
+        $ids = json_decode($request->ids);
+        if ($ids) {
+            User::whereIn('id', $ids)->delete();
+        }
+
+        return redirect()->back()->with('success', 'Data reseller terpilih berhasil dihapus!');
     }
 }
