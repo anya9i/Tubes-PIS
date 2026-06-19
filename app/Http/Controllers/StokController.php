@@ -4,136 +4,51 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
 
 class StokController extends Controller
 {
-    // READ - Tampilkan semua produk
+    // Tampilkan Halaman Daftar Stok (Pakai Foto)
     public function index()
     {
-        // SINKRONISASI: Ubah nama variabel menjadi $produk (tanpa 's') sesuai request di file View
         $produk = Produk::paginate(5);
-
-        // API
-        if (request()->is('api/*')) {
-            return response()->json($produk);
-        }
-
-        // PERBAIKAN: Arahkan ke folder 'stok.index' bukan 'produk.index'
         return view('stok.index', compact('produk'));
     }
 
-    // CREATE - Tampilkan form tambah produk
-    public function create()
-    {
-        return view('stok.create');
-    }
-
-    // CREATE - Simpan produk baru
-    public function store(Request $request)
+    // Update Cepat Jumlah Stok dari Halaman Stok
+    public function updateCepat(Request $request)
     {
         $request->validate([
-            'nama_produk' => 'required|string|max:150',
-            'sku'         => 'required|string|max:50|unique:produk,sku',
-            'harga'       => 'required|numeric|min:0',
-            'stok'        => 'required|integer|min:0',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'deskripsi'   => 'nullable|string',
+            'produk_id'   => 'required|exists:produk,id',
+            'jumlah_stok' => 'required|integer|min:0',
         ]);
 
-        $data = $request->all();
+        $produk = Produk::findOrFail($request->produk_id);
+        $produk->stok = $request->jumlah_stok;
+        $produk->save();
 
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('produk', 'public');
-        }
-
-        $produk = Produk::create($data);
-
-        // API
-        if (request()->is('api/*')) {
-            return response()->json([
-                'message' => 'Produk berhasil ditambahkan',
-                'data' => $produk
-            ]);
-        }
-
-        // Web - Sesuaikan rute redirect
-        return redirect()->route('stok.index')->with('success', 'Produk berhasil ditambahkan!');
+        return redirect()->route('stok.index')->with('success', 'Stok berhasil diperbarui!');
     }
 
-    // UPDATE - Tampilkan form edit
-    public function edit($id)
-    {
-        $produk = Produk::findOrFail($id);
-        return view('stok.edit', compact('produk'));
-    }
+    // Tambahkan fungsi store baru ini:
+public function store(Request $request)
+{
+    // 1. Validasi input dari modal tambah stok
+    $request->validate([
+        'nama_produk' => 'required|string|max:255',
+        'sku'         => 'required|string|unique:produk,sku', // memastikan SKU tidak kembar
+        'harga'       => 'required|numeric|min:0',
+        'stok'        => 'required|integer|min:0',
+    ]);
 
-    // UPDATE - Simpan perubahan
-    public function update(Request $request, $id)
-    {
-        $produk = Produk::findOrFail($id);
+    // 2. Simpan ke database menggunakan Model Produk
+    \App\Models\Produk::create([
+        'nama_produk' => $request->nama_produk,
+        'sku'         => $request->sku,
+        'harga'       => $request->harga,
+        'stok'        => $request->stok,
+    ]);
 
-        $request->validate([
-            'nama_produk' => 'required|string|max:150',
-            'sku'         => 'required|string|max:50|unique:produk,sku,' . $id,
-            'harga'       => 'required|numeric|min:0',
-            'stok'        => 'required|integer|min:0',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'deskripsi'   => 'nullable|string',
-        ]);
-
-        $data = $request->all();
-
-        if ($request->hasFile('foto')) {
-            if ($produk->foto) {
-                Storage::disk('public')->delete($produk->foto);
-            }
-            $data['foto'] = $request->file('foto')->store('produk', 'public');
-        }
-
-        $produk->update($data);
-
-        // API
-        if (request()->is('api/*')) {
-            return response()->json([
-                'message' => 'Produk berhasil diupdate',
-                'data' => $produk
-            ]);
-        }
-
-        return redirect()->route('stok.index')->with('success', 'Produk berhasil diupdate!');
-    }
-
-    // DELETE - Hapus produk (Digunakan oleh tombol hapus interaktif kita)
-    public function destroy($id)
-    {
-        $produk = Produk::findOrFail($id);
-
-        if ($produk->foto) {
-            Storage::disk('public')->delete($produk->foto);
-        }
-
-        $produk->delete();
-
-        // API
-        if (request()->is('api/*')) {
-            return response()->json([
-                'message' => 'Produk berhasil dihapus'
-            ]);
-        }
-
-        return redirect()->route('stok.index')->with('success', 'Produk berhasil dihapus!');
-    }
-
-    // PUBLIC API
-    public function externalApi()
-    {
-        $response = Http::get('https://jsonplaceholder.typicode.com/posts');
-
-        return response()->json([
-            'message' => 'Data dari Public API',
-            'data' => $response->json()
-        ]);
-    }
+    // 3. Kembalikan ke halaman stok dengan pesan sukses
+    return redirect()->route('stok.index')->with('success', 'Varian stok produk baru berhasil ditambahkan!');
+}
 }

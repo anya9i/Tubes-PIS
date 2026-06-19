@@ -1,0 +1,40 @@
+name: Deploy Laravel to InfinityFree via FTP
+
+on:
+  push:
+    branches:
+      - main # Robot akan jalan setiap kali kamu push ke branch main
+
+jobs:
+  web-deploy:
+    name: 🚀 Deploy Website
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+
+    - name: ⚙️ Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2' # Sesuaikan dengan versi PHP Laravelmu
+
+    - name: 📦 Install Dependencies
+      run: composer install --no-dev --optimize-autoloader
+
+    - name: 📂 Sync Files to InfinityFree via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: 21
+        # Mengarahkan file ke folder htdocs milik InfinityFree
+        local-dir: ./
+        server-dir: ./htdocs/ 
+        # Abaikan file yang tidak perlu diupload ke hosting gratisan
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/tests/**

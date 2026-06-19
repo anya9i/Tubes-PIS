@@ -19,10 +19,12 @@
             </p>
             
             <div class="mt-3 flex items-center gap-2 text-green-700 font-bold text-xs uppercase tracking-widest">
-                <i class="fa-solid fa-location-dot"></i>
-                <span>Google Maps</span>
+                <a href="https://www.bing.com/maps/directions?name=Pabrik+Brasil+Es+Dan+Kopi&trfc=&FORM=MPSRPL&style=r&rtp=%7Epos.-7.451775550842285_109.28075408935547_Sokaraja%2520JT-22_Pabrik%2520Brasil%2520Es%2520Dan%2520Kopi_ypid%3AYNFFC4AA84529FFC97&cp=-7.451776%7E109.280754&lvl=16" 
+                target="_blank" 
+                class="btn-google-maps">
+                    <i class="fa-solid fa-location-dot me-2"></i> Google Maps
+                </a>
             </div>
-        </div>
     </div>
 </div>
 

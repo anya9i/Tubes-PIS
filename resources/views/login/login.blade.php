@@ -151,10 +151,12 @@
                 <h1 class="login-title">Login</h1>
 
                 @if (session('failed'))
-                    <div class="allert danger">{{session('failed')}}</div>
+                    {{-- FIX: Perbaikan class 'alert alert-danger' agar muncul warna merah --}}
+                    <div class="alert alert-danger">{{ session('failed') }}</div>
                 @endif
 
                 <form action="{{ route('login') }}" method="post">
+                    {{-- FIX: Penambahan @csrf untuk keamanan dan mencegah error 419 --}}
                     @csrf
                     
                     {{-- Input Email --}}

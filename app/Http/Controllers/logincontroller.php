@@ -2,29 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // <--- 1. WAJIB TAMBAHKAN INI
+use Illuminate\Support\Facades\Auth;
+use App\Models\User; // Pastikan memanggil model User
+use Illuminate\Support\Facades\Hash;
 
-class logincontroller extends Controller
+class LoginController extends Controller
 {
-    public function login(Request $request)
-{
-    // Validasi input
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
-
-    // Proses autentikasi menggunakan EMAIL
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
-        return redirect()->intended('dashboard');
+    // Fungsi untuk menampilkan halaman login
+    public function showLoginForm()
+    {
+        return view('login.login'); 
     }
 
-    return back()->withErrors([
-        'email' => 'Email atau password salah.',
-    ]);
-}
+    // Fungsi untuk memproses login
+    public function login(Request $request)
+    {
+        // 1. Validasi format input dari form
+        $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
+        // 2. Cek apakah Email-nya ada di database atau tidak
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            // Jika email tidak terdaftar
+            return back()->withErrors([
+                'email' => 'Email yang kamu masukkan tidak terdaftar.',
+            ])->withInput();
+        }
+
+        // 3. Jika email ada, cek apakah password-nya cocok atau salah
+        if (!Hash::check($request->password, $user->password)) {
+            // Jika password salah
+            return back()->withErrors([
+                'password' => 'Kata sandi yang kamu masukkan salah.',
+            ])->withInput();
+        }
+
+        // 4. Jika semua benar, lakukan proses login resmi
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $request->session()->regenerate();
+            return redirect()->intended('/dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'Terjadi kesalahan sistem, silakan coba lagi.',
+        ]);
+    }
+
+    // FUNGSI KELUAR (LOGOUT)
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
+    }
 }
