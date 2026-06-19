@@ -37,5 +37,9 @@ jobs:
           **/.git*
           **/.git*/**
           **/node_modules/**
-          **/vendor/** # <-- TAMBAHKAN BARIS INI JIKA BELUM ADA
-          **/tests/**
+          **/vendor/**
+          **/storage/framework/cache/**
+          **/storage/framework/sessions/**
+          **/storage/framework/views/**
+          **/.env
+          **/tests/** 
