@@ -42,5 +42,5 @@ jobs:
           **/storage/framework/sessions/**
           **/storage/framework/views/**
           **/.env
-          **/tests/** 
-          
+          **/tests/**
+          **/storage/app/public/**
