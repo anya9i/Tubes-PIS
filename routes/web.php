@@ -92,3 +92,14 @@ Route::get('/pengaturan/bantuan', function () {
 Route::get('/pengaturan/tentang', function () {
     return view('pengaturan.tentang');
 })->name('pengaturan.tentang');
+
+
+Route::get('/buat-storage-link', function () {
+    $targetFolder = base_path() . '/storage/app/public';
+    $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
+    if (!file_exists($linkFolder)) {
+        symlink($targetFolder, $linkFolder);
+        return 'Storage link berhasil dibuat!';
+    }
+    return 'Storage link sudah ada.';
+});
