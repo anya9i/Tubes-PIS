@@ -25,9 +25,9 @@ jobs:
     - name: 📂 Sync Files to InfinityFree via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ secrets.FTPSERVER }}
-        username: ${{ secrets.FTPUSERNAME }}
-        password: ${{ secrets.FTPPASSWORD }}
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
         port: 21
         # Mengarahkan file ke folder htdocs milik InfinityFree
         local-dir: ./
@@ -37,4 +37,5 @@ jobs:
           **/.git*
           **/.git*/**
           **/node_modules/**
+          **/vendor/** # <-- TAMBAHKAN BARIS INI JIKA BELUM ADA
           **/tests/**
