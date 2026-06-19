@@ -1,0 +1,177 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/*GLOBAL LAYOUT*/
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 240px;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+}
+
+.content {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto;   /* INI YANG BIKIN SCROLL */
+    padding: 30px;
+    background: #f4f6f9;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+.form-card {
+    max-width: 800px;
+    margin: auto;
+}
+
+.form-card input,
+.form-card select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 2px solid #ff4d4d;
+    border-radius: 8px;
+}
+
+.form-card .row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-action {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn-success {
+    background: #2ecc71;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table .btn-danger {
+    padding: 4px 10px;
+    font-size: 13px;
+}
+
+.badge {
+    pointer-events: auto;
+}
+
+.profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f3f3f3;
+    display: block;
+}
+
+/*MENU INFO PROFILE*/
+.profile-page {
+    max-width: 900px;
+    margin: auto;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 14px;
+    padding: 24px;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.btn-edit {
+    background: #3b5bfd;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.form-group label {
+    font-size: 13px;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #f9f9f9;
+}
+
+.form-group input:read-only {
+    background: #f5f5f5;
+}
+
+.btn-save {
+    margin-top: 20px;
+    background: #3b5bfd;
+    color: white;
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
