@@ -1,4 +1,3 @@
-// Pancingan update autoload server
 <?php
 
 use Illuminate\Support\Facades\Route;
