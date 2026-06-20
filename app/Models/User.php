@@ -21,6 +21,8 @@ class User extends Authenticatable
     'alamat',
     'no_telepon',
     'status',
+    'otp_code',     // Tambahkan ini untuk kode OTP
+    'is_active',
 ];
     protected $hidden = [
         'password',

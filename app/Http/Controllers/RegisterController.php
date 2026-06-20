@@ -35,16 +35,21 @@ class RegisterController extends Controller
         $otpCode = rand(10000, 99999);
 
         // Simpan data user ke database (Akun dikunci dulu lewat is_active = false)
+        // 3. Simpan data user ke database
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name'  => $request->last_name,
             'name'       => $request->first_name . ' ' . $request->last_name,
             'email'      => $request->email,
             'password'   => Hash::make($request->password),
+            
+            // KUNCI PERBAIKAN: Masukkan kolom username di sini!
+            // Kita buat username otomatis dari email (sebelum tanda @)
+            'username'   => explode('@', $request->email)[0], 
+            
             'otp_code'   => $otpCode, 
             'is_active'  => false, 
         ]);
-
         // Simpan email ke session agar UI OTP bisa menampilkan teks email target
         session(['email_for_otp' => $request->email]);
 
