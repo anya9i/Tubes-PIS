@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    {{-- AdminLTE (Jika masih dibutuhkan untuk komponen lain) --}}
+    {{-- AdminLTE --}}
     <link rel="stylesheet" href="{{ asset('css/adminlte.css') }}" />
 
     <style>
@@ -31,17 +31,16 @@
 
         /* SISI KIRI: BACKGROUND IMAGE DARI TOKO */
         .login-image {
-            flex: 1.0; /* Mengecilkan lebar kolom gambar */
+            flex: 1.0; 
             background: url('{{ asset("images/log.png") }}');
-            background-size: 100%; /* Mengecilkan ukuran gambar di dalam kolom */
+            background-size: 100%; 
             background-repeat: no-repeat;
             background-position: center;
-            background-color: #ffffff; /* Tambahkan warna latar jika gambar tidak memenuhi kotak */
+            background-color: #ffffff; 
             position: relative;
             display: none;
         }
 
-        /* Overlay blur tipis agar senada dengan referensi sidebar */
         .login-image::before {
             content: '';
             position: absolute;
@@ -67,7 +66,6 @@
             z-index: 2;
         }
 
-        /* Logo Brasil di Pojok Kanan Atas */
         .brand-logo {
             position: absolute;
             top: 30px;
@@ -93,7 +91,6 @@
             margin-bottom: 8px;
         }
 
-        /* Input dengan style border merah sesuai branding Brasil */
         .form-control-custom {
             border-radius: 12px;
             border: 1.5px solid #dc3545; 
@@ -106,7 +103,6 @@
             border-color: #b02a37;
         }
 
-        /* Tombol Biru Glossy */
         .btn-login {
             background: linear-gradient(135deg, #007bff, #0056b3);
             border: none;
@@ -115,7 +111,6 @@
             font-weight: 700;
             letter-spacing: 1px;
             color: white;
-            float: right;
             transition: transform 0.2s;
         }
 
@@ -125,14 +120,18 @@
         }
 
         .footer-links {
-            margin-top: 60px;
-            color: #777;
+            margin-top: 30px;
+            width: 100%;
         }
 
         .footer-links a {
             color: #dc3545;
             text-decoration: none;
             font-weight: 700;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -151,64 +150,58 @@
                 <h1 class="login-title">Login</h1>
 
                 @if (session('failed'))
-                    {{-- FIX: Perbaikan class 'alert alert-danger' agar muncul warna merah --}}
                     <div class="alert alert-danger">{{ session('failed') }}</div>
                 @endif
 
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
                 <form action="{{ route('login') }}" method="post">
-                    {{-- FIX: Penambahan @csrf untuk keamanan dan mencegah error 419 --}}
                     @csrf
                     
                     {{-- Input Email --}}
-            <div class="mb-4">
-                <label class="form-label">
-                    <i class="fa-solid fa-envelope me-2"></i>Email
-                </label>
-                <input type="email" name="email" value="{{ old('email') }}"
-                    class="form-control form-control-custom @error('email') is-invalid @enderror"
-                    placeholder="admin@gmail.com" required>
-                
-                @error('email')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Input Password --}}
-            <div class="mb-2">
-                <label class="form-label">
-                    <i class="fa-solid fa-lock me-2"></i>Kata Sandi
-                </label>
-                <input type="password" name="password" 
-                    class="form-control form-control-custom @error('password') is-invalid @enderror"
-                    placeholder="********" required>
-                
-                @error('password')
-                    <div class="text-danger small mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-                    {{-- Lupa Kata Sandi --}}
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary btn-login shadow-sm">
-                            Lupa Kata Sandi? <i class="fa-solid fa-arrow-right-to-bracket ms-2"></i>
-                        </button>
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fa-solid fa-envelope me-2"></i>Email
+                        </label>
+                        <input type="email" name="email" value="{{ old('email') }}"
+                            class="form-control form-control-custom @error('email') is-invalid @enderror"
+                            placeholder="admin@gmail.com" required>
+                        
+                        @error('email')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
-                </form>
 
-                    {{-- Tombol Login --}}
-                    <div class="d-flex justify-content-end">
+                    {{-- Input Password --}}
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fa-solid fa-lock me-2"></i>Kata Sandi
+                        </label>
+                        <input type="password" name="password" 
+                            class="form-control form-control-custom @error('password') is-invalid @enderror"
+                            placeholder="********" required>
+                        
+                        @error('password')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- Tombol Login dan Lupa Password --}}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <a href="#" class="text-decoration-none text-muted small">Lupa Kata Sandi?</a>
                         <button type="submit" class="btn btn-primary btn-login shadow-sm">
                             LOGIN <i class="fa-solid fa-arrow-right-to-bracket ms-2"></i>
                         </button>
                     </div>
                 </form>
-                {{-- Tombol Daftar --}}
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary btn-login shadow-sm">
-                            Belum punya akun? <a href="{{ route('register') }}">Daftar</a> <i class="fa-solid fa-arrow-right-to-bracket ms-2"></i>
-                        </button>
-                    </div>
-                </form>
+
+                {{-- Tautan Tambahan untuk Pendaftaran Akun --}}
+                <div class="footer-links text-center">
+                    <p class="text-muted small">Belum punya akun? <a href="{{ route('register') }}">Daftar Sekarang</a></p>
                 </div>
+
             </div>
         </div>
     </div>

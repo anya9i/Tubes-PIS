@@ -28,9 +28,8 @@ Route::post('/logout', [LoginController::class, 'logout']);
 
 // ================= REGISTRASI =================
 Route::get('/register', function () {
-    return view('register');
+    return view('auth.register'); // Tambahkan 'auth.' di depannya
 })->name('register');
-
 // KODE BARU: Rute untuk memproses data registrasi memakai LoginController
 Route::post('/register', [LoginController::class, 'register']);
 

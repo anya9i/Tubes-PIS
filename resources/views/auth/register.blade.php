@@ -4,223 +4,260 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrasi Akun - Brasil Stock Management</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #F8F9FA;
+        body, html {
+            height: 100%;
             margin: 0;
-            padding: 0;
+            font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
         }
-        .left-side {
-            background-color: #2B3437; /* Warna gelap background gambar sebelah kiri */
-            min-height: 100vh;
+        
+        .register-container {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 0;
-        }
-        .left-side img {
+            height: 100vh;
             width: 100%;
-            height: 50vh;
-            object-fit: cover;
         }
+
+        /* SISI KIRI: FORMAT BACKGROUND IMAGE PERSIS SEPERTI LOGIN */
+        .register-image {
+            flex: 1.0; 
+            background: url('{{ asset("images/log.png") }}');
+            background-size: 100%; /* Mengisi seluruh area layar kiri secara proporsional */
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #ffffff; 
+            position: relative;
+            display: none;
+        }
+
+        /* Overlay halus di atas gambar */
+        .register-image::before {
+            content: '';
+            position: absolute;
+            inset: 5 px; /* Sedikit lebih kecil dari area gambar untuk efek bingkai */
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        @media (min-width: 992px) {
+            .register-image { display: block; }
+        }
+
+        /* SISI KANAN: FORM SECTION */
         .right-side {
+            flex: 1;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 40px;
-            background-color: #F0F2F5; /* Menyesuaikan keabuan di UI gambar */
+            background-color: #F0F2F5; /* Mengikuti tingkat abu-abu UI */
+            position: relative;
+            z-index: 2;
         }
+        
         .form-container {
             width: 100%;
-            max-width: 500px;
+            max-width: 450px;
         }
+        
         .brand-logo {
-            text-align: right;
-            width: 100%;
-            max-width: 500px;
-            margin-bottom: 20px;
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            width: 120px;
         }
-        .brand-logo img {
-            max-width: 150px;
-        }
+        
         .ui-title {
             font-size: 36px;
-            font-weight: 600; /* SemiBold */
-            color: #4A4A4A;
+            font-weight: 600; /* Montserrat 36 SemiBold */
+            color: #333333;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        
         .form-label {
             font-weight: 700;
-            font-size: 14px;
-            color: #000000;
-            margin-bottom: 5px;
+            font-size: 13px;
+            color: #555555;
+            margin-bottom: 6px;
             text-transform: uppercase;
         }
-        .form-control {
-            border: 1.5px solid #D65A5A; /* Border kemerahan halus seperti di UI */
+        
+        .form-control-custom {
             border-radius: 12px;
-            padding: 12px 20px;
+            border: 1.5px solid #dc3545; /* Border merah branding Brasil */
+            padding: 12px 15px;
             font-size: 14px;
-            background-color: #FFFFFF;
+            background-color: #FFFFFF !important;
+            color: #000000 !important;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
             transition: all 0.3s ease;
         }
-        .form-control::placeholder {
-            color: #BDBDBD;
+        
+        .form-control-custom::placeholder {
+            color: #BDBDBD !important;
             text-transform: uppercase;
-            font-size: 13px;
+            font-size: 12px;
         }
-        .form-control:focus {
-            border-color: #B83939;
-            box-shadow: 0 0 0 0.25rem rgba(214, 90, 90, 0.25);
+        
+        .form-control-custom:focus {
+            box-shadow: 0 0 8px rgba(220, 53, 69, 0.2);
+            border-color: #b02a37;
             outline: none;
         }
+        
         .btn-registrasi {
-            background-color: #0066CC; /* Biru cerah sesuai UI */
-            color: #FFFFFF;
-            font-weight: 600;
-            padding: 10px 50px;
-            border-radius: 15px;
-            border: 1px solid #0052A3;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 40px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: white;
+            transition: transform 0.2s;
         }
+        
         .btn-registrasi:hover {
-            background-color: #0052A3;
-            color: #FFFFFF;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #0056b3, #004494);
         }
+        
         .invalid-feedback {
             font-weight: 500;
             font-size: 12px;
+        }
+        
+        .footer-links {
+            margin-top: 25px;
+            width: 100%;
+        }
+        
+        .footer-links a {
+            color: #dc3545;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-<div class="container-fluid p-0">
-    <div class="row g-0">
-        <div class="col-md-6 d-none d-md-flex left-side">
-            <img src="{{ asset('storage/foto_brasil_atas.jpg') }}" alt="Es Brasil Batang">
-            <img src="{{ asset('storage/foto_brasil_bawah.jpg') }}" alt="Es Brasil Pack">
-        </div>
+<div class="register-container">
+    <div class="register-image"></div>
 
-        <div class="col-md-6 right-side">
-            
-            <div class="brand-logo">
-                <img src="{{ asset('storage/logo_brasil.png') }}" alt="Logo Brasil Es Krim & Kopi">
+    <div class="right-side">
+        {{-- Logo Brasil Merah --}}
+        <img src="{{ asset('images/LogoBrasilMerah.png') }}" alt="Logo Brasil" class="brand-logo">
+        
+        <div class="form-container">
+            <h1 class="ui-title">Registrasi Akun</h1>
+
+            <form action="/register" method="POST" class="needs-validation" novalidate>
+                @csrf
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" 
+                           class="form-control form-control-custom @error('email') is-invalid @enderror" 
+                           id="email" 
+                           name="email" 
+                           value="{{ old('email') }}"
+                           placeholder="Masukkan Email" 
+                           required>
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @else
+                        <div class="invalid-feedback">Format email tidak valid (Contoh: nama@gmail.com).</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="first_name" class="form-label">Nama Depan</label>
+                    <input type="text" 
+                           class="form-control form-control-custom @error('first_name') is-invalid @enderror" 
+                           id="first_name" 
+                           name="first_name" 
+                           value="{{ old('first_name') }}"
+                           placeholder="Masukkan Nama Depan" 
+                           pattern="^[a-zA-Z\s]+$" 
+                           required>
+                    @error('first_name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @else
+                        <div class="invalid-feedback">Nama depan hanya boleh berisi huruf dan spasi (tanpa angka/karakter unik).</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="last_name" class="form-label">Nama Belakang</label>
+                    <input type="text" 
+                           class="form-control form-control-custom @error('last_name') is-invalid @enderror" 
+                           id="last_name" 
+                           name="last_name" 
+                           value="{{ old('last_name') }}"
+                           placeholder="Masukkan Nama Belakang" 
+                           pattern="^[a-zA-Z\s]+$" 
+                           required>
+                    @error('last_name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @else
+                        <div class="invalid-feedback">Nama belakang hanya boleh berisi huruf dan spasi (tanpa angka/karakter unik).</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Kata Sandi</label>
+                    <input type="password" 
+                           class="form-control form-control-custom @error('password') is-invalid @enderror" 
+                           id="password" 
+                           name="password" 
+                           placeholder="Buat Kata Sandi" 
+                           pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                           required>
+                    @error('password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @else
+                        <div class="invalid-feedback">Kata sandi harus minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan karakter spesial (@$!%*?&).</div>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="password_confirmation" class="form-label">Konfirmasi Ulang Kata Sandi</label>
+                    <input type="password" 
+                           class="form-control form-control-custom" 
+                           id="password_confirmation" 
+                           name="password_confirmation" 
+                           placeholder="Konfirmasi Ulang Kata Sandi" 
+                           required>
+                    <div class="invalid-feedback" id="confirm-feedback">Konfirmasi kata sandi wajib diisi.</div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-registrasi shadow-sm">Registrasi</button>
+                </div>
+            </form>
+
+            <div class="footer-links text-center">
+                <p class="text-muted small">Sudah punya akun? <a href="{{ route('login') }}">Login di sini</a></p>
             </div>
 
-            <div class="form-container">
-                <h1 class="ui-title">Registrasi Akun</h1>
-
-                <form action="/register" method="POST" class="needs-validation" novalidate>
-                    @csrf
-
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" 
-                               class="form-control @error('email') is-invalid @enderror" 
-                               id="email" 
-                               name="email" 
-                               value="{{ old('email') }}"
-                               placeholder="Masukkan Email" 
-                               required>
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @else
-                            <div class="invalid-feedback">Format email tidak valid (Contoh: nama@gmail.com).</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="first_name" class="form-label">Nama Depan</label>
-                        <input type="text" 
-                               class="form-control @error('first_name') is-invalid @enderror" 
-                               id="first_name" 
-                               name="first_name" 
-                               value="{{ old('first_name') }}"
-                               placeholder="Masukkan Nama Depan" 
-                               pattern="^[a-zA-Z\s]+$" 
-                               required>
-                        @error('first_name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @else
-                            <div class="invalid-feedback">Nama depan hanya boleh berisi huruf dan spasi (tanpa angka/karakter unik).</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="last_name" class="form-label">Nama Belakang</label>
-                        <input type="text" 
-                               class="form-control @error('last_name') is-invalid @enderror" 
-                               id="last_name" 
-                               name="last_name" 
-                               value="{{ old('last_name') }}"
-                               placeholder="Masukkan Nama Belakang" 
-                               pattern="^[a-zA-Z\s]+$" 
-                               required>
-                        @error('last_name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @else
-                            <div class="invalid-feedback">Nama belakang hanya boleh berisi huruf dan spasi (tanpa angka/karakter unik).</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Kata Sandi</label>
-                        <input type="password" 
-                               class="form-control @error('password') is-invalid @enderror" 
-                               id="password" 
-                               name="password" 
-                               placeholder="Buat Kata Sandi" 
-                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                               required>
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @else
-                            <div class="invalid-feedback">Kata sandi harus minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan karakter spesial (@$!%*?&).</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="password_confirmation" class="form-label">Konfirmasi Ulang Kata Sandi</label>
-                        <input type="password" 
-                               class="form-control" 
-                               id="password_confirmation" 
-                               name="password_confirmation" 
-                               placeholder="Konfirmasi Ulang Kata Sandi" 
-                               required>
-                        <div class="invalid-feedback" id="confirm-feedback">Konfirmasi kata sandi wajib diisi.</div>
-                    </div>
-
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-registrasi">Registrasi</button>
-                    </div>
-
-                    <div class="text-center mt-3">
-                        <small class="text-muted">Sudah punya akun? <a href="{{ route('login') }}" class="text-decoration-none text-dark fw-bold">Login</a></small>
-                    </div>
-                </form>
-
-            </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
 <script>
     (() => {
@@ -233,7 +270,7 @@
                 const confirmPassword = document.getElementById('password_confirmation');
                 const confirmFeedback = document.getElementById('confirm-feedback');
 
-                // Validasi Kecocokan Password secara Realtime di Frontend
+                // Validasi kecocokan konfirmasi kata sandi secara realtime
                 if (password.value !== confirmPassword.value) {
                     confirmPassword.setCustomValidity('Password tidak cocok');
                     confirmFeedback.textContent = 'Konfirmasi kata sandi tidak cocok dengan kata sandi di atas!';
