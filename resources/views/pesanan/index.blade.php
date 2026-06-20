@@ -135,14 +135,16 @@
         <h4 class="judul-status-pesanan m-0">Status Pesanan</h4>
         <div class="d-flex gap-2">
             
-            {{-- BARIKADE HAK AKSES: Hanya admin/super admin yang bisa memicu fitur Edit --}}
-            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
-                @if($pesanans->count() > 0)
-                   ===a href="{{ route('pesanan.edit', $pesanans[0]->id) }}" class="btn btn-edit-figma">Edit</a>
-                @else
-                    ===button class="btn btn-edit-figma" disabled>Edit/button>
+           {{--
+                BARIKADE HAK AKSES: Hanya admin/super admin yang bisa memicu fitur Edit
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
+                    @if($pesanans->count() > 0)
+                        ===a href="{{ route('pesanan.edit', $pesanans[0]->id) }}" class="btn btn-edit-figma">Edit
+                    @else
+                        ===button class="btn btn-edit-figma" disabled>Edit/button>
+                    @endif
                 @endif
-            @endif
+            --}}
 
             {{-- Tombol Sortir Tanggal Pesanan --}}        
             {{-- Tombol Download dengan Garis Kotak Terang --}}
