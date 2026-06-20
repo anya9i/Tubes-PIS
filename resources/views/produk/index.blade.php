@@ -152,7 +152,6 @@
 
 <div class="container-fluid bg-transparent interface-container">
 
-    <!-- Ringkasan Filter Aktif -->
     @if(request('filter_value'))
         <div class="alert alert-light border-0 d-flex justify-content-between align-items-center py-2 px-3 mb-3 bg-white" style="font-size: 13px; border-left: 4px solid #0d6efd !important;">
             <div>
@@ -168,11 +167,14 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="judul-produk m-0">Daftar Produk</h4>
             <div class="d-flex gap-2">
-                <!-- TAMBAH PRODUK -->
-                <a href="{{ route('produk.create') }}" class="btn btn-brasil-blue">
-                    Tambah Produk
-                </a>
-                <!-- DOWNLOAD CSV -->
+                
+                {{-- TITIK 1: Sembunyikan tombol Tambah Produk dari Reseller --}}
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
+                    <a href="{{ route('produk.create') }}" class="btn btn-brasil-blue">
+                        Tambah Produk
+                    </a>
+                @endif
+                
                 <a href="{{ route('produk.download') }}" class="btn btn-brasil-outline text-decoration-none">
                     <i class="bi bi-download me-1.5"></i> Download CSV
                 </a>
@@ -184,31 +186,37 @@
                 <thead>
                     <tr style="border-bottom: 1px solid #dee2e6;">
                         <th class="th-produk">No.</th>
-                        <th class="th-produk">Foto Produk</th> <!-- GANTI DISINI: Judul Kolom Baru -->
+                        <th class="th-produk">Foto Produk</th>
                         <th class="th-produk">Nama Produk</th>
                         <th class="th-produk">SKU Produk</th>
                         <th class="th-produk">Harga Produk</th>
-                        <th class="th-produk" width="160" style="text-align: right; padding-right: 25px;">Aksi</th>
+                        
+                        {{-- TITIK 2: Sembunyikan header kolom Aksi --}}
+                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
+                            <th class="th-produk" width="160" style="text-align: right; padding-right: 25px;">Aksi</th>
+                        @endif
+                        
                     </tr>
                 </thead>
                 <tbody>
                     @if($produk->isEmpty())
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted td-produk-data">Tidak ada data produk yang cocok dengan kriteria saringan.</td>
+                            {{-- Jika kolom aksi hilang, colspan diubah dari 6 menjadi 5 agar pas untuk reseller --}}
+                            <td colspan="{{ (auth()->user()->role === 'admin' || auth()->user()->role === 'super admin') ? 6 : 5 }}" class="text-center py-4 text-muted td-produk-data">Tidak ada data produk yang cocok dengan kriteria saringan.</td>
                         </tr>
-                    @else
+                    @endif
+                    @if(!$produk->isEmpty())
                         @foreach($produk as $index => $item)
                             <tr style="border-bottom: 1px solid #f1f3f5;">
                                 <td class="td-produk-data fw-bold text-dark" style="color: #000000 !important; font-weight: 800;">
                                     {{ ($produk->currentPage() - 1) * $produk->perPage() + $index + 1 }}.
                                 </td>
                                 
-                                <!-- GANTI DISINI: Menampilkan thumbnail Foto dari Storage Link Laravel -->
                                 <td class="td-produk-data">
                                     @if($item->foto)
                                         <img src="{{ asset('storage/' . $item->foto) }}" alt="{{ $item->nama_produk }}" class="foto-produk-thumbnail">
-                                    @else
-                                        <!-- Placeholder jika produk tidak memiliki foto upload-an -->
+                                    @endif
+                                    @if(!$item->foto)
                                         <div class="foto-produk-thumbnail d-flex align-items-center justify-content-center text-muted" style="font-size: 11px;">
                                             No Image
                                         </div>
@@ -218,16 +226,21 @@
                                 <td class="td-produk-data text-dark fw-medium" style="color: #000000 !important;">{{ $item->nama_produk }}</td>
                                 <td class="td-produk-data text-muted">{{ $item->sku }}</td>
                                 <td class="td-produk-data text-muted">Rp {{ number_format($item->harga, 0, ',', '.') }},00</td>
-                                <td class="td-produk-data" style="text-align: right; padding-right: 20px;">
-                                    <div class="d-inline-flex align-items-center gap-3">
-                                        <a href="{{ route('produk.edit', $item->id) }}" class="link-aksi-ubah p-0">
-                                            <i class="bi bi-pencil-fill small me-1"></i> Ubah
-                                        </a>
-                                        <button class="link-aksi-hapus p-0" onclick="eksekusiHapusProduk({{ $item->id }}, '{{ $item->nama_produk }}')">
-                                            <i class="bi bi-trash-fill small me-1"></i> Hapus
-                                        </button>
-                                    </div>
-                                </td>
+                                
+                                {{-- TITIK 3: Sembunyikan data tombol Ubah & Hapus --}}
+                                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
+                                    <td class="td-produk-data" style="text-align: right; padding-right: 20px;">
+                                        <div class="d-inline-flex align-items-center gap-3">
+                                            <a href="{{ route('produk.edit', $item->id) }}" class="link-aksi-ubah p-0">
+                                                <i class="bi bi-pencil-fill small me-1"></i> Ubah
+                                            </a>
+                                            <button class="link-aksi-hapus p-0" onclick="eksekusiHapusProduk({{ $item->id }}, '{{ $item->nama_produk }}')">
+                                                <i class="bi bi-trash-fill small me-1"></i> Hapus
+                                            </button>
+                                        </div>
+                                    </td>
+                                @endif
+                                
                             </tr>
                         @endforeach
                     @endif
@@ -237,12 +250,12 @@
 
     </div>
 
-    <!-- PAGINATION -->
     <div class="d-flex justify-content-between align-items-center mt-3 px-1">
         <div>
             @if($produk->onFirstPage())
                 <button class="btn btn-light btn-brasil-outline text-muted bg-white fw-normal" style="padding: 5px 15px;" disabled>Sebelumnya</button>
-            @else
+            @endif
+            @if(!$produk->onFirstPage())
                 <a href="{{ $produk->previousPageUrl() }}" class="btn btn-light btn-brasil-outline text-muted bg-white fw-normal text-decoration-none" style="padding: 5px 15px;">Sebelumnya</a>
             @endif
         </div>
@@ -259,7 +272,8 @@
         <div>
             @if($produk->hasMorePages())
                 <a href="{{ $produk->nextPageUrl() }}" class="btn btn-light btn-brasil-outline text-muted bg-white fw-normal text-decoration-none" style="padding: 5px 15px;">Selanjutnya</a>
-            @else
+            @endif
+            @if(!$produk->hasMorePages())
                 <button class="btn btn-light btn-brasil-outline text-muted bg-white fw-normal" style="padding: 5px 15px;" disabled>Selanjutnya</button>
             @endif
         </div>
@@ -267,17 +281,15 @@
 
 </div>
 
-<!-- FORM REDIRECT JALUR FILTER HIDDEN -->
-<form id="formSaringanProdukHidden" action="{{ route('produk.index') }}" method="GET" style="display: none;">
-    <input type="hidden" id="inputFilterType" name="filter_type">
-    <input type="hidden" id="inputFilterValue" name="filter_value">
-</form>
+    <form id="formSaringanProdukHidden" action="{{ route('produk.index') }}" method="GET" style="display: none;">
+        <input type="hidden" id="inputFilterType" name="filter_type">
+        <input type="hidden" id="inputFilterValue" name="filter_value">
+    </form>
 
-<!-- FORM DELETE -->
-<form id="formHapusProdukHidden" action="" method="POST" style="display: none;">
-    @csrf
-    @method('DELETE')
-</form>
+    <form id="formHapusProdukHidden" action="" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
 
 <script>
     function pemicuSaringanMurni(tipe, kataKunci) {

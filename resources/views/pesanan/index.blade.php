@@ -134,50 +134,16 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="judul-status-pesanan m-0">Status Pesanan</h4>
         <div class="d-flex gap-2">
-            {{-- Tombol Edit Dinamis --}}
-            @if($pesanans->count() > 0)
-                <a href="{{ route('pesanan.edit', $pesanans[0]->id) }}" class="btn btn-edit-figma">Edit</a>
-            @else
-                <button class="btn btn-edit-figma" disabled>Edit</button>
+            
+            {{-- BARIKADE HAK AKSES: Hanya admin/super admin yang bisa memicu fitur Edit --}}
+            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
+                @if($pesanans->count() > 0)
+                    <a href="{{ route('pesanan.edit', $pesanans[0]->id) }}" class="btn btn-edit-figma">Edit</a>
+                @else
+                    <button class="btn btn-edit-figma" disabled>Edit</button>
+                @endif
             @endif
 
-            {{-- Blok Logika Kode Fitur Sortir & Download Murni --}}
-        <script>
-                // 1. Logika Sort Tanggal Pesanan (Urutan Atas/Bawah Bergantian) - FIXED ZERO MISTAKE
-                let urutanMaju = true;
-                function jalankanSortirTanggalLive() {
-                    const wadahTabel = document.getElementById("mainTabelPesananFigma");
-                    const badanTabel = wadahTabel.querySelector('tbody');
-                
-                // Mengambil semua baris TR yang ada di dalam TBODY
-                const kumpulanBaris = Array.from(badanTabel.querySelectorAll("tr"));
-                
-                // Lewati penyortiran jika tabel dalam kondisi kosong
-                if(kumpulanBaris.length === 1 && kumpulanBaris[0].cells.length <= 1) return;
-                
-                kumpulanBaris.sort((barisX, barisY) => {
-                    // FIX: Mengambil data element yang tepat menggunakan class tanpa tanda titik di selector internal
-                    const dataX = barisX.querySelector('.kolom-tanggal-data');
-                    const dataY = barisY.querySelector('.kolom-tanggal-data');
-                    
-                    if (!dataX || !dataY) return 0;
-                    
-                    // Mengambil nilai timestamp angka asli untuk dibandingkan
-                    const nilaiWaktuX = parseInt(dataX.getAttribute('data-waktu'));
-                    const nilaiWaktuY = parseInt(dataY.getAttribute('data-waktu'));
-                    
-                    return urutanMaju ? nilaiWaktuX - nilaiWaktuY : nilaiWaktuY - nilaiWaktuX;
-                });
-                
-                // Balikkan status urutan untuk aksi klik berikutnya (Ascending / Descending)
-                urutanMaju = !urutanMaju; 
-                
-                // Masukkan kembali baris yang sudah terurut ke dalam tabel HTML
-                kumpulanBaris.forEach(baris => {
-                    badanTabel.appendChild(baris);
-                });
-            }
-        </script>
             {{-- Tombol Sortir Tanggal Pesanan --}}        
             {{-- Tombol Download dengan Garis Kotak Terang --}}
             <button class="btn btn-action-outline-figma" onclick="jalankanEksporUnduhCSV()">
@@ -322,11 +288,11 @@
         barisDataTabel.forEach(baris => {
             if(baris.cells.length >= 6) {
                 const elemenTanggal = baris.querySelector('.kolom-tanggal-data');
-                const teksProdukSpan = baris.cells[2].querySelector('span');
                 
                 let strukturKolom = [
                     '"' + baris.cells[0].innerText.trim() + '"',
                     '"' + baris.cells[1].innerText.trim() + '"',
+                    '"' + baris.cells[2].querySelector('span').innerText.trim() + '"',
                     elemenTanggal ? elemenTanggal.innerText.trim() : baris.cells[3].innerText.trim(),
                     '"' + baris.cells[4].innerText.trim() + '"',
                     '"' + baris.cells[5].innerText.trim() + '"'
@@ -347,5 +313,3 @@
     }
 </script>
 @endsection
-
-```

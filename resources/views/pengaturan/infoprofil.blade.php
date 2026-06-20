@@ -1,86 +1,82 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Memanggil Font Montserrat & Font Awesome untuk Keperluan Ikon Form -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<!-- CONTAINER UTAMA (Melayang Simetris di atas Background Ruko) -->
-<div class="profile-viewport-wrapper" style="
-    font-family: 'Montserrat', sans-serif;
-    padding: 20px 10px;
-    box-sizing: border-box;">
+<div class="profile-viewport-wrapper" style="font-family: 'Montserrat', sans-serif; padding: 20px 10px; box-sizing: border-box;">
 
-    <!-- Tombol Kembali ke Halaman Pengaturan Utama -->
     <div class="mb-4" style="max-width: 900px; margin: 0 auto 20px auto;">
         <a href="{{ route('pengaturan.index') }}" class="btn-back-trigger">
             <i class="fa-solid fa-arrow-left me-2"></i> Kembali ke Pengaturan
         </a>
     </div>
 
-    <!-- KARTU UTAMA PROFIL -->
+    <!-- NOTIFIKASI SUKSES MENYIMPAN -->
+    @if(session('success'))
+        <div class="alert alert-success border-0 mb-4" style="border-radius: 0px; max-width: 900px; margin: 0 auto 20px auto; background-color: #d1e7dd; color: #0f5132; padding: 15px 20px; font-weight: 600;">
+            <i class="fa-solid fa-check-circle me-2"></i> {{ session('success') }}
+        </div>
+    @endif
+
     <div class="brasil-profile-card">
         
         {{-- ================= HEADER PROFIL ================= --}}
         <div class="profile-card-header">
             <div class="profile-header-left">
-                <!-- Foto Avatar Dikecilkan Secara Proporsional & Berbentuk Kotak Tanpa Rounded Sesuai Tema Utama Layout -->
-                <img src="{{ asset('images/avatar.jpeg') }}" class="profile-avatar-rect" alt="Avatar Admin">
+                <img src="{{ asset('images/avatar.jpeg') }}" class="profile-avatar-rect" alt="Avatar User">
                 <div class="profile-title-stack">
-                    <h4 class="profile-display-name">Adalah Pokoknya</h4>
-                    <span class="profile-display-role">Owner</span>
+                    <h4 class="profile-display-name">{{ auth()->user()->nama_lengkap ?? auth()->user()->username }}</h4>
+                    <span class="profile-display-role">{{ ucfirst(auth()->user()->role) }}</span>
                 </div>
             </div>
-            <!-- Tombol Kelola Mode Edit -->
             <button id="editBtn" class="btn-action-edit">EDIT</button>
         </div>
 
         {{-- ================= FORM ISIAN DATA USER ================= --}}
-        <form id="profileForm" class="profile-card-body">
+        {{-- PERBAIKAN: Mengarahkan action ke route update dan mengubah id form --}}
+        <form id="profileFormAction" action="{{ route('pengaturan.profil.update') }}" method="POST" class="profile-card-body">
             @csrf
             <div class="form-grid-layout">
 
-                <!-- 1. Nama Depan -->
+                {{-- PERBAIKAN: Menambahkan atribut name="..." pada setiap input agar bisa ditangkap database --}}
                 <div class="form-input-group">
-                    <label class="form-input-label">Nama Depan</label>
-                    <input type="text" value="Fakhri" class="form-input-control" readonly>
+                    <label class="form-input-label">Nama Lengkap</label>
+                    <input type="text" name="nama_lengkap" value="{{ auth()->user()->nama_lengkap }}" class="form-input-control" readonly required>
                 </div>
 
-                <!-- 2. Nama Belakang -->
                 <div class="form-input-group">
-                    <label class="form-input-label">Nama Belakang</label>
-                    <input type="text" value="Pangeran Beji" class="form-input-control" readonly>
+                    <label class="form-input-label">Username</label>
+                    <input type="text" name="username" value="{{ auth()->user()->username }}" class="form-input-control" readonly required>
                 </div>
 
-                <!-- 3. Email -->
-                <div class="form-input-group">
-                    <label class="form-input-label">Email</label>
-                    <input type="email" value="owner@gmail.com" class="form-input-control" readonly>
+                <div class="form-input-group" style="grid-column: span 2;">
+                    <label class="form-input-label">Email Terdaftar</label>
+                    <input type="email" name="email" value="{{ auth()->user()->email }}" class="form-input-control" readonly required>
                 </div>
 
-                <!-- 4. Alamat -->
-                <div class="form-input-group">
-                    <label class="form-input-label">Alamat</label>
-                    <input type="text" value="Purwokerto, Banyumas" class="form-input-control" readonly>
-                </div>
+                {{-- HANYA MUNCUL JIKA USER YANG LOGIN ADALAH RESELLER --}}
+                @if(auth()->user()->role === 'reseller')
+                    <div class="form-input-group">
+                        <label class="form-input-label">No. Telepon</label>
+                        <input type="text" name="no_telepon" value="{{ auth()->user()->no_telepon }}" class="form-input-control" readonly>
+                    </div>
 
-                <!-- 5. No. Telepon -->
-                <div class="form-input-group">
-                    <label class="form-input-label">No. Telepon</label>
-                    <input type="text" value="+62 838 7777 8000" class="form-input-control" readonly>
-                </div>
+                    <div class="form-input-group">
+                        <label class="form-input-label">Wilayah</label>
+                        <input type="text" name="wilayah" value="{{ auth()->user()->wilayah }}" class="form-input-control" readonly>
+                    </div>
 
-                <!-- 6. Wilayah -->
-                <div class="form-input-group">
-                    <label class="form-input-label">Wilayah</label>
-                    <input type="text" value="Jawa Tengah" class="form-input-control" readonly>
-                </div>
+                    <div class="form-input-group" style="grid-column: span 2;">
+                        <label class="form-input-label">Alamat Domisili</label>
+                        <input type="text" name="alamat" value="{{ auth()->user()->alamat }}" class="form-input-control" readonly>
+                    </div>
+                @endif
 
             </div>
 
-            <!-- Tombol Simpan (Disembunyikan Secara Default, Muncul Saat Tombol Edit Diklik) -->
             <div class="text-end mt-4">
                 <button type="submit" id="saveBtn" class="btn-action-save hidden-element">
                     SIMPAN PERUBAHAN
@@ -95,10 +91,10 @@
 <script>
     document.getElementById('editBtn').addEventListener('click', function(e) {
         e.preventDefault();
-        const inputs = document.querySelectorAll('#profileForm .form-input-control');
+        // Memperbaiki selector agar membaca id form yang baru
+        const inputs = document.querySelectorAll('#profileFormAction .form-input-control');
         const saveBtn = document.getElementById('saveBtn');
         
-        // Periksa apakah sedang dalam mode Readonly
         if (inputs[0].hasAttribute('readonly')) {
             // AKTIFKAN MODE EDIT
             inputs.forEach(input => {
@@ -119,13 +115,6 @@
             saveBtn.classList.add('hidden-element');
         }
     });
-
-    // Simulasi Pengiriman Data Form
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('Sukses! Data perubahan profil berhasil disimpan ke sistem.');
-        window.location.reload();
-    });
 </script>
 
 {{-- ================= STYLING ENGINE (MURNI NO-ROUNDED RECTANGLE STYLE) ================= --}}
@@ -140,7 +129,6 @@
         border-radius: 0px !important;
     }
 
-    /* Tombol Kembali Style */
     .btn-back-trigger {
         display: inline-block;
         background: #ffffff;
@@ -158,17 +146,15 @@
         color: #ff0000;
     }
 
-    /* Struktur Card Utama */
     .brasil-profile-card {
         background: #ffffff;
         max-width: 900px;
         width: 100%;
         margin: 0 auto;
-        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 25 rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
     }
 
-    /* Bagian Atas Card (Header Profil) */
     .profile-card-header {
         display: flex;
         align-items: center;
@@ -202,7 +188,6 @@
         letter-spacing: 0.5px;
     }
 
-    /* Tombol Aksi */
     .btn-action-edit {
         background-color: #ff0000;
         color: #ffffff;
@@ -217,7 +202,6 @@
         background-color: #cc0000;
     }
 
-    /* Form Body & Grid Kontrol */
     .profile-card-body {
         padding: 40px;
         background: #ffffff;
@@ -228,7 +212,6 @@
         gap: 24px;
     }
 
-    /* Input Element */
     .form-input-group {
         display: flex;
         flex-direction: column;
@@ -253,14 +236,12 @@
         box-sizing: border-box;
     }
     
-    /* State Khusus Ketika Input Aktif Di-Edit */
     .form-input-control.edit-mode-active {
         background-color: #ffffff !important;
         border: 1px solid #ff0000 !important;
         color: #000000;
     }
 
-    /* Tombol Simpan */
     .btn-action-save {
         background-color: #111111;
         color: #ffffff;
@@ -276,12 +257,10 @@
         background-color: #333333;
     }
 
-    /* Helper Element */
     .hidden-element {
         display: none !important;
     }
 
-    /* Responsive untuk Layar HP */
     @media (max-width: 768px) {
         .form-grid-layout {
             grid-template-columns: 1fr;
@@ -293,6 +272,9 @@
         }
         .btn-action-edit {
             width: 100%;
+        }
+        .form-input-group {
+            grid-column: span 1 !important;
         }
     }
 </style>

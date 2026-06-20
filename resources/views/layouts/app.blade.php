@@ -131,7 +131,6 @@
             width: calc(100% - 230px);
         }
 
-        /* Menyesuaikan layout jika navbar atas sedang disembunyikan (Halaman Pengaturan) */
         .main-content.full-top {
             padding-top: 20px;
         }
@@ -170,12 +169,16 @@
                 <a href="/stok" class="sidebar-item {{ request()->is('stok*') ? 'active' : '' }}">
                     <i class="fa-solid fa-clipboard-list"></i> <span>Stok</span>
                 </a>
-                <a href="/reseller" class="sidebar-item {{ request()->is('reseller*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-user-group"></i> <span>Reseller</span>
-                </a>
-                <a href="/statistik" class="sidebar-item {{ request()->is('statistik*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-chart-line"></i> <span>Statistik</span>
-                </a>
+
+                {{-- KUNCI BARIKADE SIDEBAR: Hanya admin & super admin yang bisa melihat Reseller & Statistik --}}
+                @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'super admin'))
+                    <a href="/reseller" class="sidebar-item {{ request()->is('reseller*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-user-group"></i> <span>Reseller</span>
+                    </a>
+                    <a href="/statistik" class="sidebar-item {{ request()->is('statistik*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-chart-line"></i> <span>Statistik</span>
+                    </a>
+                @endif
             </nav>
 
             <div class="mt-auto border-t border-gray-200 pt-4">
@@ -223,7 +226,8 @@
                         @endphp
 
                         <a href="#" style="text-decoration: none; font-weight: 600;">
-                            {{ $salam }}, {{ Auth::user()->name ?? 'Admin' }}
+                            {{-- KUNCI DINAMIS NAVBAR: Mengubah ->name menjadi ->nama_lengkap --}}
+                            {{ $salam }}, {{ Auth::user()->nama_lengkap ?? Auth::user()->username }}
                         </a>
                     </div>
                 </nav>
@@ -242,4 +246,3 @@
     @stack('scripts')
 </body>
 </html>
-

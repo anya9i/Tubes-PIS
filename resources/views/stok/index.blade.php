@@ -121,16 +121,21 @@
             </div>
         @endif
         
-        <!-- PAPAN PUTIH ATAS (TABEL DATA) -->
         <div class="papan-stok-putih">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="judul-stok-asli m-0">Daftar Stok</h4>
-                <div>
-                    <button class="btn btn-primary btn-custom-radius fw-semibold text-white border-0" style="background-color: #0d6efd;" data-bs-toggle="modal" data-bs-target="#modalTambahStokBaru">
-                        Tambah Stok
-                    </button>
-                </div>
+                
+                {{-- BARIKADE ROLE: Bungkus tombol pemicu modal yang asli di sini --}}
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
+                    <div>
+                        <button class="btn btn-primary btn-custom-radius fw-semibold text-white border-0" style="background-color: #0d6efd;" data-bs-toggle="modal" data-bs-target="#modalTambahStokBaru">
+                            Tambah Stok
+                        </button>
+                    </div>
+                @endif
+                
             </div>
+        </div>
 
             <div class="table-responsive">
                 <table id="tabelStokData" class="table align-middle table-borderless mb-0">

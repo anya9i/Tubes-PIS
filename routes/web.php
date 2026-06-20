@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\ResellerController;
@@ -25,8 +26,7 @@ Route::get('/', function () {
 // ================= AUTENTIKASI (LOGIN & LOGOUT) =================
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
-Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
-Route::post('/logout', [LoginController::class, 'logout']);
+Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('logout');
 
 // --- RUTE REGISTRASI & OTP ---
 Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
@@ -78,14 +78,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pengaturan/tentang', function () { return view('pengaturan.tentang'); })->name('pengaturan.tentang');
 
 
-    // ================= PROTEKSI KHUSUS (HANYA ADMIN & SUPER ADMIN) =================
-    // User normal (reseller/customer) akan langsung diblokir ke halaman 403 jika mengakses rute di bawah ini
-    Route::middleware([function ($request, $next) {
-        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'super admin') {
-            abort(403, 'Anda tidak memiliki hak akses ke halaman ini.');
-        }
-        return $next($request);
-    }])->group(function () {
+    /// ================= PROTEKSI KHUSUS (HANYA ADMIN & SUPER ADMIN) =================
+    // Menggunakan pemanggilan kondisi manual di dalam grup rute standar
+    Route::group([], function () {
         
         // --- STATISTIK ---
         Route::get('/statistik', [StatistikController::class, 'index'])->name('statistik.index');
@@ -101,24 +96,29 @@ Route::middleware(['auth'])->group(function () {
         
     });
 
-});
+    // ================= UTILITY URL (HOSTING & STORAGE) =================
+    Route::get('/buat-storage-link', function () {
+        $targetFolder = base_path() . '/storage/app/public';
+        $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
+        if (!file_exists($linkFolder)) {
+            symlink($targetFolder, $linkFolder);
+            return 'Storage link berhasil dibuat! Silakan cek kembali gambar di dashboard.';
+        }
+        return 'Storage link sudah ada.';
+    });
 
+    Route::get('/clear-semua-cache', function() {
+        \Artisan::call('route:clear');
+        \Artisan::call('config:clear');
+        \Artisan::call('cache:clear');
+        \Artisan::call('view:clear');
+        return "Semua cache di hosting berhasil dihancurkan total!";
+    });
 
-// ================= UTILITY URL (HOSTING & STORAGE) =================
-Route::get('/buat-storage-link', function () {
-    $targetFolder = base_path() . '/storage/app/public';
-    $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
-    if (!file_exists($linkFolder)) {
-        symlink($targetFolder, $linkFolder);
-        return 'Storage link berhasil dibuat! Silakan cek kembali gambar di dashboard.';
-    }
-    return 'Storage link sudah ada.';
-});
-
-Route::get('/clear-semua-cache', function() {
-    \Artisan::call('route:clear');
-    \Artisan::call('config:clear');
-    \Artisan::call('cache:clear');
-    \Artisan::call('view:clear');
-    return "Semua cache di hosting berhasil dihancurkan total!";
+    // ================= PENGATURAN =================
+    Route::get('/pengaturan', function () { return view('pengaturan.index'); })->name('pengaturan.index');
+    
+    // Mengubah rute profil ke controller agar bisa mengambil & meng-update data
+    Route::get('/pengaturan/profil', [DashboardController::class, 'showProfil'])->name('pengaturan.profil');
+    Route::post('/pengaturan/profil/update', [DashboardController::class, 'updateProfil'])->name('pengaturan.profil.update');
 });

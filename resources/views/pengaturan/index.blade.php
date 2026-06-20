@@ -18,18 +18,26 @@
 
     <div class="brasil-card profile-main-card">
         <div class="profile-meta-left">
-            <img src="{{ asset('images/avatar.jpeg') }}" class="avatar-img-fluid" alt="Foto Profil Admin">
+            <img src="{{ asset('images/avatar.jpeg') }}" class="avatar-img-fluid" alt="Foto Profil User">
             <div class="identity-text-stack">
-                <!-- Diubah menjadi teks manual/statis -->
-                <h2 class="user-name-title">Admin Es & Kopi Brasil</h2>
-                <p class="user-email-subtitle">admin@gmail.com</p>
+                {{-- DINAMIS: Menampilkan Nama Lengkap Asli dari Database --}}
+                <h2 class="user-name-title">
+                    {{ auth()->user()->nama_lengkap ?? auth()->user()->username }}
+                </h2>
+                {{-- DINAMIS: Menampilkan Email Unik User --}}
+                <p class="user-email-subtitle">
+                    {{ auth()->user()->email }}
+                </p>
             </div>
         </div>
         <div class="profile-meta-right">
-            <!-- Diubah menjadi teks manual/statis -->
-            <span class="user-role-text">Admin</span>
+            {{-- DINAMIS: Menampilkan Status Role dengan Huruf Pertama Kapital --}}
+            <span class="user-role-text">
+                {{ ucfirst(auth()->user()->role) }}
+            </span>
         </div>
     </div>
+    
     <h3 class="section-badge-title">Profil</h3>
 
     <div class="brasil-card single-clickable-row-box">
@@ -170,7 +178,7 @@
         padding: 20px 30px;
         text-decoration: none;
         box-sizing: border-box;
-        transition: all 0.2s ease-in-out; /* Animasi transisi smooth */
+        transition: all 0.2s ease-in-out;
     }
     
     .menu-action-left, .menu-action-right {
@@ -230,17 +238,15 @@
         transition: all 0.2s ease-in-out;
     }
 
-    /* ================= EFFECT HOVER MERAH (ZERO MISTAKE MECHANISM) ================= */
+    /* ================= EFFECT HOVER MERAH ================= */
     .menu-action-trigger:hover {
-        background-color: #ff0000 !important; /* Latar belakang baris menjadi merah */
+        background-color: #ff0000 !important;
     }
 
-    /* Mengubah warna teks komponen di dalam baris saat dihover */
     .menu-action-trigger:hover .menu-action-label {
         color: #ffffff !important;
     }
 
-    /* Mengubah kotak frame ikon menjadi putih saat dihover */
     .menu-action-trigger:hover .icon-square-frame {
         border-color: #ffffff !important;
     }
@@ -248,13 +254,11 @@
         color: #ffffff !important;
     }
 
-    /* Mengubah tanda panah kanan menjadi putih saat dihover */
     .menu-action-trigger:hover .chevron-bold-dark {
         color: #ffffff !important;
         -webkit-text-stroke: 1px #ffffff;
     }
 
-    /* Mengubah pill text bahasa menjadi senada saat dihover */
     .menu-action-trigger:hover .lang-status-pill {
         background-color: rgba(255, 255, 255, 0.2) !important;
         border-color: #ffffff !important;
