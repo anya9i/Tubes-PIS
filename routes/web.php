@@ -16,7 +16,6 @@ use App\Http\Controllers\StatistikController;
 */
 
 // ================= HALAMAN AWAL (REDIRECT) =================
-// KODE BARU: AMAN DARI HISTORY TRAP BROWSER ✅
 Route::get('/', [DashboardController::class, 'index'])->middleware('auth');
 
 // ================= AUTENTIKASI (LOGIN & LOGOUT) =================
@@ -30,77 +29,82 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-// ================= DASHBOARD =================
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 
-// ================= PRODUK =================
-Route::get('/produk/download', [ProductController::class, 'downloadCsv'])->name('produk.download');
-Route::resource('produk', ProductController::class);
+// ================= GRUP RUTE TERKUNCI (WAJIB LOGIN) =================
+Route::middleware(['auth'])->group(function () {
 
-// ================= STOK =================
-Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
-Route::post('/stok/update-cepat', [StokController::class, 'updateCepat'])->name('stok.update_cepat');
-Route::get('/stok/perbarui', [StokController::class, 'perbaruiForm'])->name('stok.edit');
-Route::post('/stok/perbarui', [StokController::class, 'perbaruiUpdate'])->name('stok.update');
-Route::post('/stok/store', [StokController::class, 'store'])->name('stok.store');
-Route::delete('/stok/{id}/delete', [StokController::class, 'destroy'])->name('stok.delete');
+    // ================= DASHBOARD =================
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// ================= RESELLER =================
-Route::get('/reseller', [ResellerController::class, 'index'])->name('reseller.index');
-Route::get('/reseller/create', [ResellerController::class, 'create'])->name('reseller.create');
-Route::post('/reseller', [ResellerController::class, 'store'])->name('reseller.store');
-Route::post('/reseller/destroy-massal', [ResellerController::class, 'destroyMassal'])->name('reseller.destroyMassal');
-Route::patch('/reseller/{id}/toggle-status', [ResellerController::class, 'toggleStatus'])->name('reseller.toggleStatus');
-Route::post('/reseller/{id}/update-status', [ResellerController::class, 'updateStatus'])->name('reseller.updateStatus');
-Route::delete('/reseller/{id}', [ResellerController::class, 'destroy'])->name('reseller.destroy');
+    // ================= PRODUK =================
+    Route::get('/produk/download', [ProductController::class, 'downloadCsv'])->name('produk.download');
+    Route::resource('produk', ProductController::class);
 
-// ================= PESANAN & PAYMENT =================
-Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
-Route::get('/pesanan/create', [PesananController::class, 'create'])->name('pesanan.create');
-Route::post('/pesanan', [PesananController::class, 'store'])->name('pesanan.store');
-Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
-Route::get('/pesanan/{id}/edit', [PesananController::class, 'edit'])->name('pesanan.edit');
-Route::put('/pesanan/{id}', [PesananController::class, 'update'])->name('pesanan.update');
-Route::get('/pesanan/{id}/pay', [PesananController::class, 'pay'])->name('pesanan.pay');
-Route::get('/pesanan/{id}/cancel-confirm', [PesananController::class, 'cancelConfirm'])->name('pesanan.cancel.confirm');
+    // ================= STOK =================
+    Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
+    Route::post('/stok/update-cepat', [StokController::class, 'updateCepat'])->name('stok.update_cepat');
+    Route::get('/stok/perbarui', [StokController::class, 'perbaruiForm'])->name('stok.edit');
+    Route::post('/stok/perbarui', [StokController::class, 'perbaruiUpdate'])->name('stok.update');
+    Route::post('/stok/store', [StokController::class, 'store'])->name('stok.store');
+    Route::delete('/stok/{id}/delete', [StokController::class, 'destroy'])->name('stok.delete');
 
-// ================= STATISTIK =================
-Route::get('/statistik', [StatistikController::class, 'index'])->name('statistik.index');
+    // ================= RESELLER =================
+    Route::get('/reseller', [ResellerController::class, 'index'])->name('reseller.index');
+    Route::get('/reseller/create', [ResellerController::class, 'create'])->name('reseller.create');
+    Route::post('/reseller', [ResellerController::class, 'store'])->name('reseller.store');
+    Route::post('/reseller/destroy-massal', [ResellerController::class, 'destroyMassal'])->name('reseller.destroyMassal');
+    Route::patch('/reseller/{id}/toggle-status', [ResellerController::class, 'toggleStatus'])->name('reseller.toggleStatus');
+    Route::post('/reseller/{id}/update-status', [ResellerController::class, 'updateStatus'])->name('reseller.updateStatus');
+    Route::delete('/reseller/{id}', [ResellerController::class, 'destroy'])->name('reseller.destroy');
 
-// ================= PENGATURAN (FIX SINKRONISASI TOTAL) =================
-Route::get('/pengaturan', function () {
-    return view('pengaturan.index');
-})->name('pengaturan.index');
+    // ================= PESANAN & PAYMENT =================
+    Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
+    Route::get('/pesanan/create', [PesananController::class, 'create'])->name('pesanan.create');
+    Route::post('/pesanan', [PesananController::class, 'store'])->name('pesanan.store');
+    Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
+    Route::get('/pesanan/{id}/edit', [PesananController::class, 'edit'])->name('pesanan.edit');
+    Route::put('/pesanan/{id}', [PesananController::class, 'update'])->name('pesanan.update');
+    Route::get('/pesanan/{id}/pay', [PesananController::class, 'pay'])->name('pesanan.pay');
+    Route::get('/pesanan/{id}/cancel-confirm', [PesananController::class, 'cancelConfirm'])->name('pesanan.cancel.confirm');
 
-// FIX: Name rute diubah jadi 'pengaturan.profil' dan view memanggil file aslimu 'pengaturan.infoprofile'
-Route::get('/pengaturan/profil', function () {
-    return view('pengaturan.infoprofil');
-})->name('pengaturan.profil');
+    // ================= STATISTIK =================
+    Route::get('/statistik', [StatistikController::class, 'index'])->name('statistik.index');
 
-Route::get('/pengaturan/keamanan', function () {
-    return view('pengaturan.keamanan');
-})->name('pengaturan.keamanan');
+    // ================= PENGATURAN =================
+    Route::get('/pengaturan', function () {
+        return view('pengaturan.index');
+    })->name('pengaturan.index');
 
-Route::get('/pengaturan/bahasa', function () {
-    return view('pengaturan.bahasa');
-})->name('pengaturan.bahasa');
+    Route::get('/pengaturan/profil', function () {
+        return view('pengaturan.infoprofil');
+    })->name('pengaturan.profil');
 
-Route::get('/pengaturan/bantuan', function () {
-    return view('pengaturan.bantuan');
-})->name('pengaturan.bantuan');
+    Route::get('/pengaturan/keamanan', function () {
+        return view('pengaturan.keamanan');
+    })->name('pengaturan.keamanan');
 
-Route::get('/pengaturan/tentang', function () {
-    return view('pengaturan.tentang');
-})->name('pengaturan.tentang');
+    Route::get('/pengaturan/bahasa', function () {
+        return view('pengaturan.bahasa');
+    })->name('pengaturan.bahasa');
+
+    Route::get('/pengaturan/bantuan', function () {
+        return view('pengaturan.bantuan');
+    })->name('pengaturan.bantuan');
+
+    Route::get('/pengaturan/tentang', function () {
+        return view('pengaturan.tentang');
+    })->name('pengaturan.tentang');
+
+});
 
 
+// ================= URL KHUSUS PEMBUAT LINK GAMBAR =================
 Route::get('/buat-storage-link', function () {
     $targetFolder = base_path() . '/storage/app/public';
     $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
     if (!file_exists($linkFolder)) {
         symlink($targetFolder, $linkFolder);
-        return 'Storage link berhasil dibuat!';
+        return 'Storage link berhasil dibuat! Silakan cek kembali gambar di dashboard.';
     }
     return 'Storage link sudah ada.';
 });
-
