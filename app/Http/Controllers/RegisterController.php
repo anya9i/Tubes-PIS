@@ -12,13 +12,13 @@ class RegisterController extends Controller
     // 1. Menampilkan Halaman Form Registrasi
     public function showRegisterForm()
     {
-        return view('auth.register'); // Sesuaikan dengan nama file register.blade kamu
+        return view('auth.register'); 
     }
 
     // 2. Memproses Data Pendaftaran & Memicu OTP
     public function register(Request $request)
     {
-        // Validasi input form secara ketat sesuai request kamu
+        // Validasi input form secara ketat
         $request->validate([
             'email'      => 'required|string|email|max:255|unique:users',
             'first_name' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:100',
@@ -34,30 +34,38 @@ class RegisterController extends Controller
         // Acak 5 Digit Angka OTP (untuk 5 kotak di UI Continue)
         $otpCode = rand(10000, 99999);
 
-        // Simpan data user ke database (Akun dikunci dulu lewat is_active = false)
-        // 3. Simpan data user ke database
+        // Membuat username otomatis dan memastikan keunikannya
+        $baseUsername = explode('@', $request->email)[0];
+        $username = $baseUsername;
+        
+        // Antisipasi jika username bawaan email sudah terdaftar di database online
+        $counter = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+
+        // Simpan data user ke database (Hanya kolom yang terdaftar di phpMyAdmin)
         $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name'  => $request->last_name,
-            // KUNCI PERBAIKAN: Ubah 'name' menjadi 'nama_lengkap' sesuai kolom di database
             'nama_lengkap' => $request->first_name . ' ' . $request->last_name,
-            'email'      => $request->email,
-            'password'   => Hash::make($request->password),
-            
-            // KUNCI PERBAIKAN: Masukkan kolom username di sini!
-            // Kita buat username otomatis dari email (sebelum tanda @)
-            'username'   => explode('@', $request->email)[0], 
-            
-            'otp_code'   => $otpCode, 
-            'is_active'  => false, 
+            'email'        => $request->email,
+            'password'     => Hash::make($request->password),
+            'username'     => $username, 
+            'otp_code'     => $otpCode, 
+            'is_active'    => false, 
         ]);
-        // Simpan email ke session agar UI OTP bisa menampilkan teks email target
+
+        // Simpan email ke session agar UI OTP bisa menampilkan target email
         session(['email_for_otp' => $request->email]);
 
-        // [OPSIONAL] Kirim Email OTP ke Mailtrap
-        // Mail::raw("Kode OTP Registrasi Brasil Anda adalah: $otpCode", function ($message) use ($user) {
-        //     $message->to($user->email)->subject('Kode Verifikasi OTP Akun Brasil');
-        // });
+        // AKTIF: Mengaktifkan fungsi kirim email OTP
+        try {
+            Mail::raw("Kode OTP Registrasi Brasil Anda adalah: $otpCode", function ($message) use ($user) {
+                $message->to($user->email)->subject('Kode Verifikasi OTP Akun Brasil');
+            });
+        } catch (\Exception $e) {
+            // Jika SMTP hosting gratisan memblokir port, sistem tidak crash dan user tetap bisa diarahkan ke halaman OTP
+        }
 
         // Belokkan alur masuk ke halaman pengisian kode OTP
         return redirect()->route('otp.view')->with('success', 'Registrasi berhasil! Silakan periksa kode OTP.');
@@ -66,7 +74,7 @@ class RegisterController extends Controller
     // 3. Menampilkan Halaman 5 Kotak Input OTP
     public function showOtpForm()
     {
-        // Proteksi: Jika tidak ada session email, tendang balik ke register
+        // Proteksi: Jika tidak ada session email, kembalikan ke register
         if (!session('email_for_otp')) {
             return redirect()->route('register')->with('failed', 'Silakan registrasi terlebih dahulu.');
         }
@@ -80,7 +88,7 @@ class RegisterController extends Controller
             'otp' => 'required|array|size:5', // Validasi array harus pas 5 kotak
         ]);
 
-        // Menggabungkan array array [1, 2, 3, 4, 5] menjadi string tunggal "12345"
+        // Menggabungkan array [1, 2, 3, 4, 5] menjadi string tunggal "12345"
         $insertedOtp = implode('', $request->otp);
         $email = session('email_for_otp');
 
@@ -102,5 +110,4 @@ class RegisterController extends Controller
         // Sukses! Lempar ke halaman login utama
         return redirect()->route('login')->with('success', 'Akun kamu berhasil diverifikasi! Silakan login.');
     }
-    
 }

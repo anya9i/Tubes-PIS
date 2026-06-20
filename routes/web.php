@@ -16,8 +16,8 @@ use App\Http\Controllers\ForgotPasswordController;
 | Web Routes
 |--------------------------------------------------------------------------
 */
+
 // ================= HALAMAN AWAL (REDIRECT) =================
-// Mengarahkan siapa pun yang membuka domain utama langsung ke halaman login
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -40,6 +40,7 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 
+
 // ================= GRUP RUTE TERKUNCI (WAJIB LOGIN) =================
 Route::middleware(['auth'])->group(function () {
 
@@ -58,15 +59,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/stok/store', [StokController::class, 'store'])->name('stok.store');
     Route::delete('/stok/{id}/delete', [StokController::class, 'destroy'])->name('stok.delete');
 
-    // ================= RESELLER =================
-    Route::get('/reseller', [ResellerController::class, 'index'])->name('reseller.index');
-    Route::get('/reseller/create', [ResellerController::class, 'create'])->name('reseller.create');
-    Route::post('/reseller', [ResellerController::class, 'store'])->name('reseller.store');
-    Route::post('/reseller/destroy-massal', [ResellerController::class, 'destroyMassal'])->name('reseller.destroyMassal');
-    Route::patch('/reseller/{id}/toggle-status', [ResellerController::class, 'toggleStatus'])->name('reseller.toggleStatus');
-    Route::post('/reseller/{id}/update-status', [ResellerController::class, 'updateStatus'])->name('reseller.updateStatus');
-    Route::delete('/reseller/{id}', [ResellerController::class, 'destroy'])->name('reseller.destroy');
-
     // ================= PESANAN & PAYMENT =================
     Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
     Route::get('/pesanan/create', [PesananController::class, 'create'])->name('pesanan.create');
@@ -77,38 +69,42 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pesanan/{id}/pay', [PesananController::class, 'pay'])->name('pesanan.pay');
     Route::get('/pesanan/{id}/cancel-confirm', [PesananController::class, 'cancelConfirm'])->name('pesanan.cancel.confirm');
 
-    // ================= STATISTIK =================
-    Route::get('/statistik', [StatistikController::class, 'index'])->name('statistik.index');
-
     // ================= PENGATURAN =================
-    Route::get('/pengaturan', function () {
-        return view('pengaturan.index');
-    })->name('pengaturan.index');
+    Route::get('/pengaturan', function () { return view('pengaturan.index'); })->name('pengaturan.index');
+    Route::get('/pengaturan/profil', function () { return view('pengaturan.infoprofil'); })->name('pengaturan.profil');
+    Route::get('/pengaturan/keamanan', function () { return view('pengaturan.keamanan'); })->name('pengaturan.keamanan');
+    Route::get('/pengaturan/bahasa', function () { return view('pengaturan.bahasa'); })->name('pengaturan.bahasa');
+    Route::get('/pengaturan/bantuan', function () { return view('pengaturan.bantuan'); })->name('pengaturan.bantuan');
+    Route::get('/pengaturan/tentang', function () { return view('pengaturan.tentang'); })->name('pengaturan.tentang');
 
-    Route::get('/pengaturan/profil', function () {
-        return view('pengaturan.infoprofil');
-    })->name('pengaturan.profil');
 
-    Route::get('/pengaturan/keamanan', function () {
-        return view('pengaturan.keamanan');
-    })->name('pengaturan.keamanan');
+    // ================= PROTEKSI KHUSUS (HANYA ADMIN & SUPER ADMIN) =================
+    // User normal (reseller/customer) akan langsung diblokir ke halaman 403 jika mengakses rute di bawah ini
+    Route::middleware([function ($request, $next) {
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'super admin') {
+            abort(403, 'Anda tidak memiliki hak akses ke halaman ini.');
+        }
+        return $next($request);
+    }])->group(function () {
+        
+        // --- STATISTIK ---
+        Route::get('/statistik', [StatistikController::class, 'index'])->name('statistik.index');
 
-    Route::get('/pengaturan/bahasa', function () {
-        return view('pengaturan.bahasa');
-    })->name('pengaturan.bahasa');
-
-    Route::get('/pengaturan/bantuan', function () {
-        return view('pengaturan.bantuan');
-    })->name('pengaturan.bantuan');
-
-    Route::get('/pengaturan/tentang', function () {
-        return view('pengaturan.tentang');
-    })->name('pengaturan.tentang');
+        // --- ALL RESELLER ROUTES ---
+        Route::get('/reseller', [ResellerController::class, 'index'])->name('reseller.index');
+        Route::get('/reseller/create', [ResellerController::class, 'create'])->name('reseller.create');
+        Route::post('/reseller', [ResellerController::class, 'store'])->name('reseller.store');
+        Route::post('/reseller/destroy-massal', [ResellerController::class, 'destroyMassal'])->name('reseller.destroyMassal');
+        Route::patch('/reseller/{id}/toggle-status', [ResellerController::class, 'toggleStatus'])->name('reseller.toggleStatus');
+        Route::post('/reseller/{id}/update-status', [ResellerController::class, 'updateStatus'])->name('reseller.updateStatus');
+        Route::delete('/reseller/{id}', [ResellerController::class, 'destroy'])->name('reseller.destroy');
+        
+    });
 
 });
 
 
-// ================= URL KHUSUS PEMBUAT LINK GAMBAR =================
+// ================= UTILITY URL (HOSTING & STORAGE) =================
 Route::get('/buat-storage-link', function () {
     $targetFolder = base_path() . '/storage/app/public';
     $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
@@ -117,4 +113,12 @@ Route::get('/buat-storage-link', function () {
         return 'Storage link berhasil dibuat! Silakan cek kembali gambar di dashboard.';
     }
     return 'Storage link sudah ada.';
+});
+
+Route::get('/clear-semua-cache', function() {
+    \Artisan::call('route:clear');
+    \Artisan::call('config:clear');
+    \Artisan::call('cache:clear');
+    \Artisan::call('view:clear');
+    return "Semua cache di hosting berhasil dihancurkan total!";
 });
