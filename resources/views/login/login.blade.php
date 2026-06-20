@@ -186,10 +186,13 @@
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
             </div>
-
-                    <div class="mb-4">
-                        <a href="#" class="text-muted small text-decoration-none">Lupa Kata Sandi?</a>
+                    {{-- Lupa Kata Sandi --}}
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary btn-login shadow-sm">
+                            Lupa Kata Sandi? <i class="fa-solid fa-arrow-right-to-bracket ms-2"></i>
+                        </button>
                     </div>
+                </form>
 
                     {{-- Tombol Login --}}
                     <div class="d-flex justify-content-end">
@@ -198,9 +201,13 @@
                         </button>
                     </div>
                 </form>
-
-                <div class="footer-links text-center">
-                    Belum punya akun? <a href="#">Daftar</a>
+                {{-- Tombol Daftar --}}
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary btn-login shadow-sm">
+                            Belum punya akun? <a href="{{ route('register') }}">Daftar</a> <i class="fa-solid fa-arrow-right-to-bracket ms-2"></i>
+                        </button>
+                    </div>
+                </form>
                 </div>
             </div>
         </div>

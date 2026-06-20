@@ -14,9 +14,11 @@ use App\Http\Controllers\StatistikController;
 | Web Routes
 |--------------------------------------------------------------------------
 */
-
 // ================= HALAMAN AWAL (REDIRECT) =================
-Route::get('/', [DashboardController::class, 'index'])->middleware('auth');
+// Mengarahkan siapa pun yang membuka domain utama langsung ke halaman login
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 // ================= AUTENTIKASI (LOGIN & LOGOUT) =================
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -26,9 +28,11 @@ Route::post('/logout', [LoginController::class, 'logout']);
 
 // ================= REGISTRASI =================
 Route::get('/register', function () {
-    return view('auth.register');
+    return view('register');
 })->name('register');
 
+// KODE BARU: Rute untuk memproses data registrasi memakai LoginController
+Route::post('/register', [LoginController::class, 'register']);
 
 // ================= GRUP RUTE TERKUNCI (WAJIB LOGIN) =================
 Route::middleware(['auth'])->group(function () {

@@ -61,4 +61,27 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
         return redirect('/login');
     }
-}
+
+    // Tambahkan fungsi ini di dalam LoginController
+    public function register(Request $request)
+    {
+        // 1. Validasi input dari form
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // 2. Simpan data user baru ke database
+            $request->validate([
+            'email' => 'required|string|email|max:255|unique:users',
+            // 'regex:/^[a-zA-Z\s]+$/' memastikan nama bersih dari angka dan simbol aneh
+            'first_name' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:100',
+            'last_name' => 'required|string|regex:/^[a-zA-Z\s]+$/|max:100',
+            // Rules::defaults() atau mixedCase()->numbers()->symbols() memaksa sandi kuat di server
+            'password' => 'required|string|min:8|confirmed|\Illuminate\Validation\Rules\Password::min(8)->mixedCase()->numbers()->symbols()',
+        ]);
+        // 3. Lempar kembali ke halaman login dengan pesan sukses
+        return redirect()->route('alogin')->with('success', 'Registrasi berhasil! Silakan login.');
+    }
+    }
