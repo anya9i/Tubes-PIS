@@ -39,7 +39,8 @@ class RegisterController extends Controller
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name'  => $request->last_name,
-            'name'       => $request->first_name . ' ' . $request->last_name,
+            // KUNCI PERBAIKAN: Ubah 'name' menjadi 'nama_lengkap' sesuai kolom di database
+            'nama_lengkap' => $request->first_name . ' ' . $request->last_name,
             'email'      => $request->email,
             'password'   => Hash::make($request->password),
             
