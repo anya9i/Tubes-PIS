@@ -14,10 +14,10 @@
         </a>
     </div>
 
-    <!-- NOTIFIKASI SUKSES MENYIMPAN -->
     @if(session('success'))
-        <div class="alert alert-success border-0 mb-4" style="border-radius: 0px; max-width: 900px; margin: 0 auto 20px auto; background-color: #d1e7dd; color: #0f5132; padding: 15px 20px; font-weight: 600;">
+        <div class="alert alert-success alert-dismissible fade show border-0 mb-4" role="alert" style="border-radius: 0px; max-width: 900px; margin: 0 auto 20px auto; background-color: #d1e7dd; color: #0f5132; padding: 15px 20px; font-weight: 600;">
             <i class="fa-solid fa-check-circle me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
@@ -32,46 +32,74 @@
                     <span class="profile-display-role">{{ ucfirst(auth()->user()->role) }}</span>
                 </div>
             </div>
-            <button id="editBtn" class="btn-action-edit">EDIT</button>
+            <button id="editBtn" class="btn-action-edit">PERBARUI</button>
         </div>
 
         {{-- ================= FORM ISIAN DATA USER ================= --}}
-        {{-- PERBAIKAN: Mengarahkan action ke route update dan mengubah id form --}}
         <form id="profileFormAction" action="{{ route('pengaturan.profil.update') }}" method="POST" class="profile-card-body">
             @csrf
             <div class="form-grid-layout">
 
-                {{-- PERBAIKAN: Menambahkan atribut name="..." pada setiap input agar bisa ditangkap database --}}
                 <div class="form-input-group">
                     <label class="form-input-label">Nama Lengkap</label>
-                    <input type="text" name="nama_lengkap" value="{{ auth()->user()->nama_lengkap }}" class="form-input-control" readonly required>
+                    <input type="text" name="nama_lengkap" value="{{ auth()->user()->nama_lengkap }}" class="form-input-control" readonly required data-placeholder="Masukkan nama lengkap Anda">
                 </div>
 
                 <div class="form-input-group">
                     <label class="form-input-label">Username</label>
-                    <input type="text" name="username" value="{{ auth()->user()->username }}" class="form-input-control" readonly required>
+                    <input type="text" 
+                           name="username" 
+                           value="{{ auth()->user()->username }}" 
+                           class="form-input-control permanen-kunci" 
+                           readonly 
+                           required 
+                           title="Hubungi admin untuk mengubah username" 
+                           style="background-color: #f3f4f6; color: #9ca3af; cursor: not-allowed;">
                 </div>
 
                 <div class="form-input-group" style="grid-column: span 2;">
                     <label class="form-input-label">Email Terdaftar</label>
-                    <input type="email" name="email" value="{{ auth()->user()->email }}" class="form-input-control" readonly required>
+                    <input type="email" 
+                           name="email" 
+                           value="{{ auth()->user()->email }}" 
+                           class="form-input-control permanen-kunci" 
+                           readonly 
+                           required 
+                           title="Hubungi admin untuk mengubah email terdaftar" 
+                           style="background-color: #f3f4f6; color: #9ca3af; cursor: not-allowed;">
                 </div>
 
                 {{-- HANYA MUNCUL JIKA USER YANG LOGIN ADALAH RESELLER --}}
                 @if(auth()->user()->role === 'reseller')
+                    
                     <div class="form-input-group">
-                        <label class="form-input-label">No. Telepon</label>
-                        <input type="text" name="no_telepon" value="{{ auth()->user()->no_telepon }}" class="form-input-control" readonly>
+                        <div class="label-helper-wrapper">
+                            <label class="form-input-label">No. Telepon</label>
+                            @if(empty(auth()->user()->no_telepon))
+                                <span class="helper-text-alert"><i class="fa-solid fa-circle-exclamation"></i> Belum diisi</span>
+                            @endif
+                        </div>
+                        <input type="text" name="no_telepon" value="{{ auth()->user()->no_telepon ?? '-' }}" class="form-input-control" readonly data-placeholder="Contoh: 08123456789">
                     </div>
 
                     <div class="form-input-group">
-                        <label class="form-input-label">Wilayah</label>
-                        <input type="text" name="wilayah" value="{{ auth()->user()->wilayah }}" class="form-input-control" readonly>
+                        <div class="label-helper-wrapper">
+                            <label class="form-input-label">Wilayah</label>
+                            @if(empty(auth()->user()->wilayah))
+                                <span class="helper-text-alert"><i class="fa-solid fa-circle-exclamation"></i> Belum diisi</span>
+                            @endif
+                        </div>
+                        <input type="text" name="wilayah" value="{{ auth()->user()->wilayah ?? '-' }}" class="form-input-control" readonly data-placeholder="Contoh: Purwokerto Timur">
                     </div>
 
                     <div class="form-input-group" style="grid-column: span 2;">
-                        <label class="form-input-label">Alamat Domisili</label>
-                        <input type="text" name="alamat" value="{{ auth()->user()->alamat }}" class="form-input-control" readonly>
+                        <div class="label-helper-wrapper">
+                            <label class="form-input-label">Alamat Domisili</label>
+                            @if(empty(auth()->user()->alamat))
+                                <span class="helper-text-alert"><i class="fa-solid fa-circle-exclamation"></i> Belum diisi</span>
+                            @endif
+                        </div>
+                        <input type="text" name="alamat" value="{{ auth()->user()->alamat ?? '-' }}" class="form-input-control" readonly data-placeholder="Contoh: Jl. Jenderal Suprapto No. 25">
                     </div>
                 @endif
 
@@ -91,35 +119,66 @@
 <script>
     document.getElementById('editBtn').addEventListener('click', function(e) {
         e.preventDefault();
-        // Memperbaiki selector agar membaca id form yang baru
-        const inputs = document.querySelectorAll('#profileFormAction .form-input-control');
+        
+        const inputs = document.querySelectorAll('#profileFormAction .form-input-control:not(.permanen-kunci)');
+        const helpers = document.querySelectorAll('.helper-text-alert');
         const saveBtn = document.getElementById('saveBtn');
         
         if (inputs[0].hasAttribute('readonly')) {
-            // AKTIFKAN MODE EDIT
+            // ================= AKTIFKAN MODE EDIT =================
             inputs.forEach(input => {
                 input.removeAttribute('readonly');
                 input.classList.add('edit-mode-active');
+                
+                const targetPlaceholder = input.getAttribute('data-placeholder');
+                if (targetPlaceholder) {
+                    input.setAttribute('placeholder', targetPlaceholder);
+                }
+
+                if (input.value === '-') {
+                    input.value = '';
+                }
             });
+
+            helpers.forEach(helper => {
+                helper.style.display = 'none';
+            });
+
             this.innerText = 'BATAL';
             this.style.backgroundColor = '#6c757d';
             saveBtn.classList.remove('hidden-element');
+
         } else {
-            // KEMBALI KE MODE READONLY
+            // ================= KEMBALI KE MODE READONLY =================
             inputs.forEach(input => {
                 input.setAttribute('readonly', 'readonly');
                 input.classList.remove('edit-mode-active');
+                input.removeAttribute('placeholder');
+                
+                if (input.value.trim() === '') {
+                    input.value = '-';
+                }
             });
-            this.innerText = 'EDIT';
+
+            inputs.forEach(input => {
+                if (input.value === '-') {
+                    const group = input.closest('.form-input-group');
+                    const helper = group.querySelector('.helper-text-alert');
+                    if (helper) {
+                        helper.style.display = 'inline-block';
+                    }
+                }
+            });
+
+            this.innerText = 'PERBARUI';
             this.style.backgroundColor = '#ff0000';
             saveBtn.classList.add('hidden-element');
         }
     });
 </script>
 
-{{-- ================= STYLING ENGINE (MURNI NO-ROUNDED RECTANGLE STYLE) ================= --}}
+{{-- ================= STYLING ENGINE ================= --}}
 <style>
-    /* Reset Sudut Menjadi Siku-Siku Sesuai Aturan Utama Proyek Induk */
     .brasil-profile-card, 
     .profile-avatar-rect, 
     .form-input-control, 
@@ -151,7 +210,7 @@
         max-width: 900px;
         width: 100%;
         margin: 0 auto;
-        box-shadow: 0 4px 25 rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
     }
 
@@ -216,14 +275,31 @@
         display: flex;
         flex-direction: column;
     }
+
+    .label-helper-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
     .form-input-label {
         font-size: 13px;
         font-weight: 700;
         color: #374151;
-        margin-bottom: 8px;
+        margin-bottom: 0px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
+
+    .helper-text-alert {
+        font-size: 11px;
+        font-weight: 700;
+        color: #e02424;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     .form-input-control {
         background-color: #f9fafb;
         border: 1px solid #e5e7eb;
@@ -240,6 +316,12 @@
         background-color: #ffffff !important;
         border: 1px solid #ff0000 !important;
         color: #000000;
+    }
+
+    .form-input-control::placeholder {
+        color: #9ca3af;
+        font-weight: 400;
+        opacity: 0.8;
     }
 
     .btn-action-save {

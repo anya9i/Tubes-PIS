@@ -69,17 +69,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pesanan/{id}/pay', [PesananController::class, 'pay'])->name('pesanan.pay');
     Route::get('/pesanan/{id}/cancel-confirm', [PesananController::class, 'cancelConfirm'])->name('pesanan.cancel.confirm');
 
-    // ================= PENGATURAN =================
+    // ================= PENGATURAN (SUDAH BERSIH DARI TERTUMPUK) =================
     Route::get('/pengaturan', function () { return view('pengaturan.index'); })->name('pengaturan.index');
-    Route::get('/pengaturan/profil', function () { return view('pengaturan.infoprofil'); })->name('pengaturan.profil');
     Route::get('/pengaturan/keamanan', function () { return view('pengaturan.keamanan'); })->name('pengaturan.keamanan');
     Route::get('/pengaturan/bahasa', function () { return view('pengaturan.bahasa'); })->name('pengaturan.bahasa');
     Route::get('/pengaturan/bantuan', function () { return view('pengaturan.bantuan'); })->name('pengaturan.bantuan');
     Route::get('/pengaturan/tentang', function () { return view('pengaturan.tentang'); })->name('pengaturan.tentang');
+    
+    // FIX: Rute profil diarahkan penuh ke DashboardController agar dinamis menangkap data database
+    Route::get('/pengaturan/profil', [DashboardController::class, 'showProfil'])->name('pengaturan.profil');
+    Route::post('/pengaturan/profil/update', [DashboardController::class, 'updateProfil'])->name('pengaturan.profil.update');
 
 
-    /// ================= PROTEKSI KHUSUS (HANYA ADMIN & SUPER ADMIN) =================
-    // Menggunakan pemanggilan kondisi manual di dalam grup rute standar
+    // ================= PROTEKSI ADMIN & SUPER ADMIN =================
     Route::group([], function () {
         
         // --- STATISTIK ---
@@ -90,7 +92,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reseller/create', [ResellerController::class, 'create'])->name('reseller.create');
         Route::post('/reseller', [ResellerController::class, 'store'])->name('reseller.store');
         Route::post('/reseller/destroy-massal', [ResellerController::class, 'destroyMassal'])->name('reseller.destroyMassal');
-        Route::patch('/reseller/{id}/toggle-status', [ResellerController::class, 'toggleStatus'])->name('reseller.toggleStatus');
         Route::post('/reseller/{id}/update-status', [ResellerController::class, 'updateStatus'])->name('reseller.updateStatus');
         Route::delete('/reseller/{id}', [ResellerController::class, 'destroy'])->name('reseller.destroy');
         
@@ -115,10 +116,4 @@ Route::middleware(['auth'])->group(function () {
         return "Semua cache di hosting berhasil dihancurkan total!";
     });
 
-    // ================= PENGATURAN =================
-    Route::get('/pengaturan', function () { return view('pengaturan.index'); })->name('pengaturan.index');
-    
-    // Mengubah rute profil ke controller agar bisa mengambil & meng-update data
-    Route::get('/pengaturan/profil', [DashboardController::class, 'showProfil'])->name('pengaturan.profil');
-    Route::post('/pengaturan/profil/update', [DashboardController::class, 'updateProfil'])->name('pengaturan.profil.update');
 });
