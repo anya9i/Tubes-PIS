@@ -138,9 +138,9 @@
             {{-- BARIKADE HAK AKSES: Hanya admin/super admin yang bisa memicu fitur Edit --}}
             @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
                 @if($pesanans->count() > 0)
-                    <a href="{{ route('pesanan.edit', $pesanans[0]->id) }}" class="btn btn-edit-figma">Edit</a>
+                   ===a href="{{ route('pesanan.edit', $pesanans[0]->id) }}" class="btn btn-edit-figma">Edit</a>
                 @else
-                    <button class="btn btn-edit-figma" disabled>Edit</button>
+                    ===button class="btn btn-edit-figma" disabled>Edit/button>
                 @endif
             @endif
 

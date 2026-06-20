@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Import Font Montserrat & Bootstrap Icons -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -113,7 +112,6 @@
 <div class="container-fluid bg-transparent stok-interface-wrapper">
     
     <div>
-        <!-- Bagian Notifikasi Akses Sukses -->
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert" style="border-radius: 6px;">
                 <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
@@ -123,9 +121,8 @@
         
         <div class="papan-stok-putih">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="judul-stok-asli m-0">Daftar Stok</h4>
+                <h4 class="judul-stok-asli m-0">Daftar Stok Inventaris Brasil</h4>
                 
-                {{-- BARIKADE ROLE: Bungkus tombol pemicu modal yang asli di sini --}}
                 @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
                     <div>
                         <button class="btn btn-primary btn-custom-radius fw-semibold text-white border-0" style="background-color: #0d6efd;" data-bs-toggle="modal" data-bs-target="#modalTambahStokBaru">
@@ -135,7 +132,6 @@
                 @endif
                 
             </div>
-        </div>
 
             <div class="table-responsive">
                 <table id="tabelStokData" class="table align-middle table-borderless mb-0">
@@ -165,7 +161,7 @@
                                     </td>
                                     <td class="py-3 td-isi-stok text-center">{{ $item->sku }}</td>
                                     <td class="py-3 td-isi-stok text-center">Rp {{ number_format($item->harga, 0, ',', '.') }},00</td>
-                                    <td class="py-3 td-isi-stok text-center" style="color: #383E49 !important;">
+                                    <td class="py-3 td-isi-stok text-center" style="color: #383E49 !important; font-weight: 700;">
                                         {{ $item->stok }}
                                     </td>
                                     <td class="py-3">
@@ -187,7 +183,6 @@
         </div>
     </div>
 
-    <!-- PAPAN PUTIH BAWAH (PAGINATION TERPISAH SESUAI MOCKUP) -->
     <div class="papan-pagination-bawah d-flex justify-content-between align-items-center">
         <div>
             @if($produk->onFirstPage())
@@ -217,13 +212,11 @@
 
 </div>
 
-<!-- Form Request Penghapusan Data Tersembunyi -->
 <form id="formActionDeleteHidden" action="" method="POST" style="display: none;">
     @csrf
     @method('DELETE')
 </form>
 
-<!-- Modal Pop-Up TAMBAH STOK BARU -->
 <div class="modal fade" id="modalTambahStokBaru" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow" style="border-radius: 8px;">
@@ -260,7 +253,6 @@
     </div>
 </div>
 
-<!-- Modal Pop-Up UBAH CEPAT JUMLAH STOK -->
 <div class="modal fade" id="modalUbahStokCepat" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow" style="border-radius: 8px;">
@@ -291,10 +283,11 @@
 </div>
 
 <script>
+    // FIX: URL form diarahkan secara dinamis menggunakan named route agar tidak tersangkut di subfolder hosting
     function pemicuHapusData(id, nama) {
-        if(confirm('Apakah kamu benar-benar ingin menghapus varian "' + nama + '" dari data inventaris toko Brasil?')) {
+        if(confirm('Apakah kamu benar-benar yakin ingin mengosongkan (set 0) jumlah ketersediaan stok untuk varian "' + nama + '"?')) {
             const form = document.getElementById('formActionDeleteHidden');
-            form.action = "/stok/" + id + "/delete";
+            form.action = "{{ route('stok.index') }}/" + id + "/delete";
             form.submit();
         }
     }

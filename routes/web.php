@@ -69,14 +69,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pesanan/{id}/pay', [PesananController::class, 'pay'])->name('pesanan.pay');
     Route::get('/pesanan/{id}/cancel-confirm', [PesananController::class, 'cancelConfirm'])->name('pesanan.cancel.confirm');
 
-    // ================= PENGATURAN (SUDAH BERSIH DARI TERTUMPUK) =================
+    // ================= PENGATURAN =================
     Route::get('/pengaturan', function () { return view('pengaturan.index'); })->name('pengaturan.index');
     Route::get('/pengaturan/keamanan', function () { return view('pengaturan.keamanan'); })->name('pengaturan.keamanan');
     Route::get('/pengaturan/bahasa', function () { return view('pengaturan.bahasa'); })->name('pengaturan.bahasa');
     Route::get('/pengaturan/bantuan', function () { return view('pengaturan.bantuan'); })->name('pengaturan.bantuan');
     Route::get('/pengaturan/tentang', function () { return view('pengaturan.tentang'); })->name('pengaturan.tentang');
     
-    // FIX: Rute profil diarahkan penuh ke DashboardController agar dinamis menangkap data database
     Route::get('/pengaturan/profil', [DashboardController::class, 'showProfil'])->name('pengaturan.profil');
     Route::post('/pengaturan/profil/update', [DashboardController::class, 'updateProfil'])->name('pengaturan.profil.update');
 
