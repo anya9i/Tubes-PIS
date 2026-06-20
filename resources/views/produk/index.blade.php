@@ -165,10 +165,9 @@
     <div class="papan-putih-produk">
         
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="judul-produk m-0">Daftar Produk</h4>
+            <h4 class="judul-produk m-0">Daftar Produk Varian Es</h4>
             <div class="d-flex gap-2">
                 
-                {{-- TITIK 1: Sembunyikan tombol Tambah Produk dari Reseller --}}
                 @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
                     <a href="{{ route('produk.create') }}" class="btn btn-brasil-blue">
                         Tambah Produk
@@ -191,17 +190,14 @@
                         <th class="th-produk">SKU Produk</th>
                         <th class="th-produk">Harga Produk</th>
                         
-                        {{-- TITIK 2: Sembunyikan header kolom Aksi --}}
                         @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
                             <th class="th-produk" width="160" style="text-align: right; padding-right: 25px;">Aksi</th>
                         @endif
-                        
                     </tr>
                 </thead>
                 <tbody>
                     @if($produk->isEmpty())
                         <tr>
-                            {{-- Jika kolom aksi hilang, colspan diubah dari 6 menjadi 5 agar pas untuk reseller --}}
                             <td colspan="{{ (auth()->user()->role === 'admin' || auth()->user()->role === 'super admin') ? 6 : 5 }}" class="text-center py-4 text-muted td-produk-data">Tidak ada data produk yang cocok dengan kriteria saringan.</td>
                         </tr>
                     @endif
@@ -213,10 +209,10 @@
                                 </td>
                                 
                                 <td class="td-produk-data">
+                                    {{-- FIX: Alamat folder pemanggilan gambar diubah langsung ke folder public/images --}}
                                     @if($item->foto)
-                                        <img src="{{ asset('storage/' . $item->foto) }}" alt="{{ $item->nama_produk }}" class="foto-produk-thumbnail">
-                                    @endif
-                                    @if(!$item->foto)
+                                        <img src="{{ asset('images/' . $item->foto) }}" alt="{{ $item->nama_produk }}" class="foto-produk-thumbnail">
+                                    @else
                                         <div class="foto-produk-thumbnail d-flex align-items-center justify-content-center text-muted" style="font-size: 11px;">
                                             No Image
                                         </div>
@@ -227,7 +223,6 @@
                                 <td class="td-produk-data text-muted">{{ $item->sku }}</td>
                                 <td class="td-produk-data text-muted">Rp {{ number_format($item->harga, 0, ',', '.') }},00</td>
                                 
-                                {{-- TITIK 3: Sembunyikan data tombol Ubah & Hapus --}}
                                 @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super admin')
                                     <td class="td-produk-data" style="text-align: right; padding-right: 20px;">
                                         <div class="d-inline-flex align-items-center gap-3">
@@ -240,7 +235,6 @@
                                         </div>
                                     </td>
                                 @endif
-                                
                             </tr>
                         @endforeach
                     @endif
@@ -254,8 +248,7 @@
         <div>
             @if($produk->onFirstPage())
                 <button class="btn btn-light btn-brasil-outline text-muted bg-white fw-normal" style="padding: 5px 15px;" disabled>Sebelumnya</button>
-            @endif
-            @if(!$produk->onFirstPage())
+            @else
                 <a href="{{ $produk->previousPageUrl() }}" class="btn btn-light btn-brasil-outline text-muted bg-white fw-normal text-decoration-none" style="padding: 5px 15px;">Sebelumnya</a>
             @endif
         </div>
@@ -272,8 +265,7 @@
         <div>
             @if($produk->hasMorePages())
                 <a href="{{ $produk->nextPageUrl() }}" class="btn btn-light btn-brasil-outline text-muted bg-white fw-normal text-decoration-none" style="padding: 5px 15px;">Selanjutnya</a>
-            @endif
-            @if(!$produk->hasMorePages())
+            @else
                 <button class="btn btn-light btn-brasil-outline text-muted bg-white fw-normal" style="padding: 5px 15px;" disabled>Selanjutnya</button>
             @endif
         </div>
@@ -298,11 +290,11 @@
         document.getElementById('formSaringanProdukHidden').submit();
     }
 
-    // FUNGSI DELETE
+    // FIX: Fungsi Javascript Hapus Produk diamankan rute URL-nya menggunakan helper route agar berjalan lancar di hosting
     function eksekusiHapusProduk(id, nama) {
         if(confirm('Apakah kamu yakin ingin menghapus varian "' + nama + '" dari daftar produk?')) {
             const form = document.getElementById('formHapusProdukHidden');
-            form.action = "/produk/" + id;
+            form.action = "{{ route('produk.index') }}/" + id;
             form.submit();
         }
     }

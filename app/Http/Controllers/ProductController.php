@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 
 class ProductController extends Controller
@@ -14,7 +13,6 @@ class ProductController extends Controller
     {
         $query = Produk::query();
 
-        // Fitur Filter/Pencarian berdasarkan nama produk atau SKU
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -23,15 +21,12 @@ class ProductController extends Controller
             });
         }
 
-        // Pagination 5 data per halaman dengan mempertahankan query string filter saat pindah halaman
         $produk = $query->paginate(5)->withQueryString();
 
-        // API Response
         if ($request->is('api/*')) {
             return response()->json($produk);
         }
 
-        // Web Response
         return view('produk.index', compact('produk'));
     }
 
@@ -55,13 +50,21 @@ class ProductController extends Controller
 
         $data = $request->all();
 
+        // FIX: Upload langsung dialihkan ke folder public/images
         if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('produk', 'public');
+            $file = $request->file('foto');
+            // Membuat nama unik agar file tidak saling menimpa
+            $nama_foto = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            
+            // Pindahkan langsung ke root folder public/images proyek
+            $file->move(public_path('images'), $nama_foto);
+            
+            // Simpan nama filenya saja ke database
+            $data['foto'] = $nama_foto;
         }
 
         $produk = Produk::create($data);
 
-        // API Response
         if ($request->is('api/*')) {
             return response()->json([
                 'message' => 'Produk berhasil ditambahkan',
@@ -69,7 +72,6 @@ class ProductController extends Controller
             ]);
         }
 
-        // Web Response
         return redirect()->route('produk.index')->with('success', 'Produk berhasil ditambahkan!');
     }
 
@@ -96,17 +98,23 @@ class ProductController extends Controller
 
         $data = $request->all();
 
+        // FIX: Upload dan hapus foto lama langsung di direktori public/images
         if ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada di storage
-            if ($produk->foto && Storage::disk('public')->exists($produk->foto)) {
-                Storage::disk('public')->delete($produk->foto);
+            // Hapus file fisik lama di folder public/images jika ada
+            if ($produk->foto && file_exists(public_path('images/' . $produk->foto))) {
+                unlink(public_path('images/' . $produk->foto));
             }
-            $data['foto'] = $request->file('foto')->store('produk', 'public');
+            
+            $file = $request->file('foto');
+            $nama_foto = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+            
+            // Pindahkan file baru
+            $file->move(public_path('images'), $nama_foto);
+            $data['foto'] = $nama_foto;
         }
 
         $produk->update($data);
 
-        // API Response
         if ($request->is('api/*')) {
             return response()->json([
                 'message' => 'Produk berhasil diupdate',
@@ -114,29 +122,28 @@ class ProductController extends Controller
             ]);
         }
 
-        // Web Response
         return redirect()->route('produk.index')->with('success', 'Produk berhasil diupdate!');
     }
 
     // DELETE - Hapus produk (FITUR HAPUS)
-    public function destroy($id)
+    // FIX: Menyuntikkan Request $request ke parameter agar tidak memicu error API response
+    public function destroy(Request $request, $id)
     {
         $produk = Produk::findOrFail($id);
 
-        if ($produk->foto && Storage::disk('public')->exists($produk->foto)) {
-            Storage::disk('public')->delete($produk->foto);
+        // Hapus file fisik di folder public/images sebelum data database dihilangkan
+        if ($produk->foto && file_exists(public_path('images/' . $produk->foto))) {
+            unlink(public_path('images/' . $produk->foto));
         }
 
         $produk->delete();
 
-        // API Response
         if ($request->is('api/*')) {
             return response()->json([
                 'message' => 'Produk berhasil dihapus'
             ]);
         }
 
-        // Web Response
         return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus!');
     }
 
@@ -180,7 +187,6 @@ class ProductController extends Controller
     // PUBLIC API
     public function externalApi()
     {
-        // Memperbaiki sintaks Http:: menjadi Http::get
         $response = Http::get('https://jsonplaceholder.typicode.com/posts');
 
         return response()->json([

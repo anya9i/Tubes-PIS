@@ -79,8 +79,9 @@
                         <div class="mb-3 form-group-brasil">
                             <label class="form-label-brasil">Visual Foto Saat Ini</label>
                             <div class="mb-3 kotak-preview-foto-lama">
+                                {{-- FIX: Path file dialihkan penuh ke folder public/images/ --}}
                                 @if($produk->foto)
-                                    <img src="{{ asset('storage/' . $produk->foto) }}"
+                                    <img src="{{ asset('images/' . $produk->foto) }}"
                                          alt="{{ $produk->nama_produk }}"
                                          class="foto-produk-thumbnail-edit">
                                     <p class="text-muted small-helper-brasil mt-2"><i class="bi bi-info-circle"></i> Biarkan kosong jika tidak berniat mengganti gambar produk es.</p>
@@ -92,7 +93,6 @@
                             </div>
 
                             <label for="foto" class="form-label-brasil mt-2">Unggah File Foto Baru</label>
-                            {{-- PERBAIKAN: Menambahkan accept="image/*" untuk mempermudah pemilihan file langsung dari galeri HP/Laptop user --}}
                             <input type="file"
                                    id="foto"
                                    name="foto"
