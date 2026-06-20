@@ -5,9 +5,11 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\ResellerController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PesananController;
 use App\Http\Controllers\StatistikController;
+use App\Http\Controllers\ForgotPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,12 +28,17 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/logout', [LoginController::class, 'logout']);
 
-// ================= REGISTRASI =================
-Route::get('/register', function () {
-    return view('auth.register'); // Tambahkan 'auth.' di depannya
-})->name('register');
-// KODE BARU: Rute untuk memproses data registrasi memakai LoginController
-Route::post('/register', [LoginController::class, 'register']);
+// --- RUTE REGISTRASI & OTP ---
+Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register']);
+Route::get('/verify-otp', [RegisterController::class, 'showOtpForm'])->name('otp.view');
+Route::post('/verify-otp', [RegisterController::class, 'verifyOtp'])->name('otp.verify');
+
+// --- RUTE LUPA KATA SANDI ---
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 
 // ================= GRUP RUTE TERKUNCI (WAJIB LOGIN) =================
 Route::middleware(['auth'])->group(function () {
